@@ -22,9 +22,9 @@ ERB files are the most-read files in the codebase. Developers scan them constant
 
 ---
 
-## Pre-flight: Lint and Format ERB Files
+## Pre-flight: Lint and Format ERB Files (MANDATORY)
 
-After modifying any `.html.erb` file, run the Herb linter and formatter on the changed files. Herb catches syntax issues and enforces consistent formatting that manual review can miss.
+**You MUST run these steps every time this skill is invoked.** After modifying any `.html.erb` file, run the Herb linter and formatter on the changed files. Herb catches syntax issues and enforces consistent formatting that manual review can miss.
 
 ### 1. Check if Herb is available
 
@@ -58,7 +58,7 @@ If the command fails, inform the user:
 >
 > The rewriter source is bundled with this skill at [templates/align-attributes.mjs](templates/align-attributes.mjs). It vertically aligns HTML attributes when an element has two or more, matching the formatting rules in this skill.
 
-If Herb is not available, skip this section and continue with the rest of the ERB skill. Do not block on it.
+If Herb is not available, skip steps 2 and 3 below and continue with the rest of the ERB skill. Do not block on Herb installation. But if Herb IS available, you MUST run steps 2 and 3 — do not skip them.
 
 ### 2. Identify changed ERB files
 
