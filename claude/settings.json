@@ -1,0 +1,131 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Read",
+      "Write",
+      "Create",
+      "Update",
+      "Bash(mkdir:*)",
+      "Bash(sed:*)",
+      "Bash(exit)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin feature:*)",
+      "Bash(git push origin fix:*)",
+      "Bash(git branch:*)",
+      "Bash(git status:*)",
+      "Bash(git pull:*)",
+      "Bash(git diff:*)",
+      "Bash(yarn build:*)",
+      "Bash(iconv:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr status:*)",
+      "Bash(RAILS_ENV=test rails test:*)",
+      "Bash(RAILS_ENV=test bundle exec rails test:*)",
+      "Bash(RAILS_ENV=test bundle exec rails runner:*)",
+      "Bash(RAILS_ENV=test bundle exec:*)",
+      "Bash(bundle exec rails:*)",
+      "Bash(rails test:*)",
+      "Bash(bundle exec rubocop:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(find:*)",
+      "Bash(git log:*)",
+      "Bash(rails runner:*)",
+      "Bash(brew list:*)",
+      "Bash(grep:*)",
+      "Bash(build:*)",
+      "Bash(true)",
+      "Bash(rails routes)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(rm:*)",
+      "Bash(ruby:*)",
+      "Bash(rails generate:*)",
+      "Bash(rails:*)",
+      "Bash(RAILS_ENV=test rails db:migrate)",
+      "Bash(RAILS_ENV=test rails db:migrate:status)",
+      "Bash(RAILS_ENV=test rails db:setup)",
+      "Bash(RAILS_ENV=test rails db:reset)",
+      "Bash(RAILS_ENV=test rails db:schema:load)",
+      "Bash(zcat:*)",
+      "Bash(gunzip:*)",
+      "Bash(awk:*)",
+      "Bash(perl:*)",
+      "Bash(rg:*)",
+      "Bash(rake:*)",
+      "Bash(gh pr view:*)",
+      "Bash(time rails test:*)",
+      "Bash(yarn add:*)",
+      "Bash(RAILS_ENV=production bin/rails assets:precompile --trace)",
+      "Bash(RAILS_ENV=development rails server -d)",
+      "Bash(export RAILS_ENV=development)",
+      "WebFetch(domain:render.com)",
+      "Bash(bundle install:*)",
+      "Bash(rails test:*)",
+      "Bash(echo $FELT_MAP_ID)",
+      "Bash(bundle exec rubocop:*)",
+      "Read(/tmp/**)",
+      "Read(/tmp/**)",
+      "Read(/private/tmp/**)",
+      "Bash(export RAILS_ENV=production)",
+      "Bash(curl:*)",
+      "WebFetch",
+      "Bash(RAILS_ENV=development rails assets:precompile)",
+      "WebSearch",
+      "Bash(export PARALLEL=1)",
+      "Bash(yarn build:*)",
+      "Bash(pkill:*)",
+      "Bash(yarn build:*)",
+      "Bash(unzip:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledPlugins": {
+    "code-simplifier@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
+    "marketing-skills@marketingskills": true,
+    "pm-product-discovery@pm-skills": true,
+    "example-skills@anthropic-agent-skills": true,
+    "impeccable@impeccable": true,
+    "ruby-lsp@claude-plugins-official": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
+  "extraKnownMarketplaces": {
+    "pm-skills": {
+      "source": {
+        "source": "github",
+        "repo": "phuryn/pm-skills"
+      }
+    },
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
+}
