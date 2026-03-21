@@ -48,6 +48,15 @@ If the command fails, inform the user:
 > ```
 >
 > Then run `bundle install && yarn install`."
+>
+> To enable automatic attribute alignment, copy the included rewriter into your project:
+>
+> ```bash
+> mkdir -p .herb/rewriters
+> cp templates/align-attributes.mjs .herb/rewriters/
+> ```
+>
+> The rewriter source is bundled with this skill at [templates/align-attributes.mjs](templates/align-attributes.mjs). It vertically aligns HTML attributes when an element has two or more, matching the formatting rules in this skill.
 
 If Herb is not available, skip this section and continue with the rest of the ERB skill. Do not block on it.
 
