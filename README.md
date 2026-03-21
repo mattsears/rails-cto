@@ -1,4 +1,4 @@
-# fullstack-cto
+# fullstack-rails-cto
 
 Opinionated Claude Code plugin for Ruby on Rails development — orchestration, code quality, testing, and git workflows.
 
@@ -34,8 +34,8 @@ These skills reference third-party skills from the Claude Code marketplace:
 ### Option A: Install from the marketplace
 
 ```bash
-/plugin marketplace add mattsears/fullstack-cto
-/plugin install fullstack-cto@fullstack-cto
+/plugin marketplace add mattsears/fullstack-rails-cto
+/plugin install fullstack-rails-cto@fullstack-rails-cto
 ```
 
 ### Option B: Install manually with symlinks
@@ -43,7 +43,7 @@ These skills reference third-party skills from the Claude Code marketplace:
 Clone the repo and symlink skills into your global Claude directory:
 
 ```bash
-git clone git@github.com:mattsears/fullstack-cto.git ~/Workspace/active/fullstack-cto
+git clone git@github.com:mattsears/fullstack-rails-cto.git ~/Workspace/active/fullstack-cto
 
 for skill in ~/Workspace/active/fullstack-cto/skills/*/; do
   ln -sf "$skill" ~/.claude/skills/$(basename "$skill")
@@ -103,12 +103,12 @@ When creating any implementation plan, always include `/fullstack-rails-qa` as a
 
 If installed via symlinks, any edits you make in this repo are immediately available to all projects. Just edit the files in `skills/` and they take effect on the next Claude Code session.
 
-If installed via the marketplace, run `/plugin update fullstack-cto@fullstack-cto` to pull the latest.
+If installed via the marketplace, run `/plugin update fullstack-rails-cto@fullstack-rails-cto` to pull the latest.
 
 ## Plugin Structure
 
 ```
-fullstack-cto/
+fullstack-rails-cto/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin metadata
 ├── skills/                   # All skills
