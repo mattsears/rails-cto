@@ -1,0 +1,45 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "fullstack-rails-cto",
+  "owner": {
+    "name": "Matt Sears",
+    "email": "matt@mattsears.com",
+    "url": "https://mattsears.com"
+  },
+  "metadata": {
+    "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
+    "version": "1.0.0",
+    "repository": "https://github.com/mattsears/fullstack-rails-cto"
+  },
+  "plugins": [
+    {
+      "name": "fullstack-rails-cto",
+      "description": "Opinionated Ruby on Rails development toolkit with 14 skills covering orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, API design, upgrades, and git workflows.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Sears",
+        "email": "matt@mattsears.com"
+      },
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/mattsears/fullstack-rails-cto",
+      "tags": ["rails", "ruby", "fullstack", "testing", "tailwind", "stimulus", "hotwire"],
+      "skills": [
+        "./skills/fullstack-rails-cto",
+        "./skills/fullstack-rails-engineer",
+        "./skills/fullstack-rails-api",
+        "./skills/fullstack-rails-erb",
+        "./skills/fullstack-rails-minitest",
+        "./skills/fullstack-rails-qa",
+        "./skills/fullstack-rails-restful",
+        "./skills/fullstack-rails-stimulus",
+        "./skills/fullstack-rails-tailwind",
+        "./skills/fullstack-rails-upgrade",
+        "./skills/fullstack-rails-view-component",
+        "./skills/fullstack-commit-all",
+        "./skills/fullstack-pull-request",
+        "./skills/fullstack-production-pr"
+      ]
+    }
+  ]
+}
