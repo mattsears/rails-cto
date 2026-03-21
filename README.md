@@ -99,6 +99,20 @@ Invoke `/fullstack-rails-erb` and `/fullstack-rails-tailwind` after every ERB ch
 When creating any implementation plan, always include `/fullstack-rails-qa` as a final step. No plan is complete without a QA gate.
 ```
 
+### Docker Usage
+
+These skills assume Rails runs locally. If you use Docker, add this to your project's `CLAUDE.md`:
+
+```markdown
+# Docker
+
+I use Docker for local development. Prefix all Rails, Ruby, bundle, and yarn
+commands with `docker compose exec web`. Git and GitHub CLI commands run on
+the host — do not prefix those.
+```
+
+Adjust `docker compose exec web` to match your service name.
+
 ## Updating Skills
 
 If installed via symlinks, any edits you make in this repo are immediately available to all projects. Just edit the files in `skills/` and they take effect on the next Claude Code session.
