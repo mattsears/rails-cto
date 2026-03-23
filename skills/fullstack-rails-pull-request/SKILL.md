@@ -1,5 +1,5 @@
 ---
-name: fullstack-pull-request
+name: fullstack-rails-pull-request
 description: Create a pull request targeting the staging branch using the gh CLI. Use this skill whenever the user asks to create a PR, open a pull request, submit for review, or says things like "create a PR", "open a pull request", "submit this for review", "PR this", or "send this to staging". Also triggers for "/pull-request" or "/pr". Do NOT use for merging PRs, reviewing PRs, or creating production releases.
 ---
 

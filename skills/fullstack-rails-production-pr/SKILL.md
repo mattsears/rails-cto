@@ -1,6 +1,6 @@
 ---
-name: fullstack-production-pr
-description: Create a production pull request merging staging into main using the gh CLI. Use this skill whenever the user asks to create a production PR, deploy to production, cut a release, or says things like "release to production", "production PR", "deploy this", "ship to prod", "create a production PR", or "merge staging to main". Also triggers for "/production-pr". Do NOT use for creating feature PRs to staging — use fullstack-pull-request for that.
+name: fullstack-rails-production-pr
+description: Create a production pull request merging staging into main using the gh CLI. Use this skill whenever the user asks to create a production PR, deploy to production, cut a release, or says things like "release to production", "production PR", "deploy this", "ship to prod", "create a production PR", or "merge staging to main". Also triggers for "/production-pr". Do NOT use for creating feature PRs to staging — use fullstack-rails-pull-request for that.
 ---
 
 # Production Release

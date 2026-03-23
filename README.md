@@ -17,9 +17,9 @@ Opinionated Claude Code plugin for Ruby on Rails development — orchestration, 
 | `fullstack-rails-tailwind` | Tailwind CSS best practices, design system, dark mode, responsive, accessibility |
 | `fullstack-rails-upgrade` | Rails version upgrade guidance |
 | `fullstack-rails-view-component` | ViewComponent patterns |
-| `fullstack-commit-all` | Stage and commit all changes with human-friendly messages |
-| `fullstack-pull-request` | Create PRs targeting staging |
-| `fullstack-production-pr` | Create production PRs (staging to main) |
+| `fullstack-rails-commit` | Stage and commit all changes with human-friendly messages |
+| `fullstack-rails-pull-request` | Create PRs targeting staging |
+| `fullstack-rails-production-pr` | Create production PRs (staging to main) |
 
 ### Marketplace Dependencies
 
@@ -79,12 +79,40 @@ group :test do
 end
 ```
 
+**Important:** SimpleCov must be configured with the JSON formatter so the QA and Minitest skills can read coverage data. Add this to `test/test_helper.rb` **before** any other requires:
+
+```ruby
+require "simplecov"
+require "simplecov_json_formatter"
+
+SimpleCov.start("rails") do
+  formatter SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::JSONFormatter
+  ])
+end
+```
+
+Without `JSONFormatter`, the skills cannot check test coverage — they rely on `coverage/coverage.json` which is only generated when this formatter is active.
+
 For Herb, also add to `package.json` devDependencies:
 
 ```json
 "@herb-tools/formatter": "0.9.2",
 "@herb-tools/linter": "0.9.2"
 ```
+
+Then add a `herb.yml` to the root of your project to configure the rewriters:
+
+```yaml
+rewriter:
+  pre:
+    - tailwind-class-sorter
+  post:
+    - align-attributes
+```
+
+The `align-attributes` rewriter is bundled with the ERB skill and will be copied into your project's `.herb/rewriters/` automatically when the skill runs.
 
 None of these are strictly required — each skill gracefully skips its tooling when the gem isn't present. But you'll get the most value with all of them installed.
 
@@ -160,9 +188,9 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-tailwind/
 │   ├── fullstack-rails-upgrade/
 │   ├── fullstack-rails-view-component/
-│   ├── fullstack-commit-all/
-│   ├── fullstack-pull-request/
-│   └── fullstack-production-pr/
+│   ├── fullstack-rails-commit/
+│   ├── fullstack-rails-pull-request/
+│   └── fullstack-rails-production-pr/
 ├── claude/
 │   └── CLAUDE.md             # Project-level config (for this repo only)
 └── README.md

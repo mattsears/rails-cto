@@ -36,9 +36,9 @@
         "./skills/fullstack-rails-tailwind",
         "./skills/fullstack-rails-upgrade",
         "./skills/fullstack-rails-view-component",
-        "./skills/fullstack-commit-all",
-        "./skills/fullstack-pull-request",
-        "./skills/fullstack-production-pr"
+        "./skills/fullstack-rails-commit",
+        "./skills/fullstack-rails-pull-request",
+        "./skills/fullstack-rails-production-pr"
       ]
     }
   ]
