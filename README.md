@@ -131,9 +131,9 @@ Adjust `docker compose exec web` to match your service name.
 
 ## Updating Skills
 
-If installed via symlinks, any edits you make in this repo are immediately available to all projects. Just edit the files in `skills/` and they take effect on the next Claude Code session.
-
-If installed via the marketplace, run `/plugin update fullstack-rails-cto@fullstack-rails-cto` to pull the latest.
+```bash
+/plugin update fullstack-rails-cto@fullstack-rails-cto
+```
 
 ## Plugin Structure
 
