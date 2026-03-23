@@ -31,29 +31,11 @@ These skills reference third-party skills from the Claude Code marketplace:
 
 ## Installation
 
-### Option A: Install from the marketplace
+### Install from the marketplace
 
 ```bash
 /plugin marketplace add mattsears/fullstack-rails-cto
 /plugin install fullstack-rails-cto@fullstack-rails-cto
-```
-
-### Option B: Install manually with symlinks
-
-Clone the repo and symlink skills into your global Claude directory:
-
-```bash
-git clone git@github.com:mattsears/fullstack-rails-cto.git ~/Workspace/active/fullstack-cto
-
-for skill in ~/Workspace/active/fullstack-cto/skills/*/; do
-  ln -sf "$skill" ~/.claude/skills/$(basename "$skill")
-done
-```
-
-Verify the symlinks:
-
-```bash
-ls -la ~/.claude/skills/
 ```
 
 ### Install marketplace dependencies
@@ -76,6 +58,40 @@ Under `extraKnownMarketplaces`:
   }
 }
 ```
+
+### Recommended gems
+
+These gems are used by various skills for linting, formatting, testing, and documentation. Add them to your project's `Gemfile`:
+
+```ruby
+# Code quality (used by fullstack-rails-qa, fullstack-rails-cto)
+gem "rubocop", require: false
+gem "rubocop-rails", require: false
+gem "rubocop-minitest", require: false
+
+# ERB linting and formatting (used by fullstack-rails-erb)
+gem "herb"
+
+# Test coverage (used by fullstack-rails-minitest, fullstack-rails-qa)
+group :test do
+  gem "simplecov", require: false
+  gem "simplecov_json_formatter", require: false
+end
+
+# API documentation (used by fullstack-rails-api)
+gem "rswag-api"
+gem "rswag-ui"
+gem "rswag-specs", group: [:test]
+```
+
+For Herb, also add to `package.json` devDependencies:
+
+```json
+"@herb-tools/formatter": "0.9.2",
+"@herb-tools/linter": "0.9.2"
+```
+
+None of these are strictly required — each skill gracefully skips its tooling when the gem isn't present. But you'll get the most value with all of them installed.
 
 ### Project-level setup (recommended)
 
