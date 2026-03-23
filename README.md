@@ -77,11 +77,6 @@ group :test do
   gem "simplecov", require: false
   gem "simplecov_json_formatter", require: false
 end
-
-# API documentation (used by fullstack-rails-api)
-gem "rswag-api"
-gem "rswag-ui"
-gem "rswag-specs", group: [:test]
 ```
 
 For Herb, also add to `package.json` devDependencies:
@@ -129,10 +124,22 @@ the host — do not prefix those.
 
 Adjust `docker compose exec web` to match your service name.
 
-## Updating Skills
+## Updating
 
 ```bash
 /plugin update fullstack-rails-cto@fullstack-rails-cto
+```
+
+## Uninstalling
+
+```bash
+/plugin uninstall fullstack-rails-cto@fullstack-rails-cto
+```
+
+To also remove the marketplace reference:
+
+```bash
+/plugin marketplace remove mattsears/fullstack-rails-cto
 ```
 
 ## Plugin Structure

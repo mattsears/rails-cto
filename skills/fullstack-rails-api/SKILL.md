@@ -426,142 +426,306 @@ In production, replace `origins "*"` with specific allowed domains. Expose rate 
 
 ## OpenAPI Documentation
 
-Generate the OpenAPI spec from your controllers using `rswag`. This keeps documentation in sync with actual API behavior — when tests pass, the spec is accurate.
+Maintain the OpenAPI spec as a YAML file and use `committee` to validate that API responses match the spec in your Minitest integration tests. When tests pass, the spec is accurate.
 
 ### Setup
 
 Add to `Gemfile`:
 
 ```ruby
-gem "rswag-api"
-gem "rswag-ui"
-gem "rswag-specs", group: [:test]
+group :test do
+  gem "committee", require: false
+  gem "committee-rails", require: false
+end
 ```
 
-### Writing spec-driven documentation
+Then configure committee in your test helper:
 
 ```ruby
-# spec/requests/api/v1/bookmarks_spec.rb (or test equivalent)
+# test/support/api_test_helper.rb
 
-require "swagger_helper"
+module ApiTestHelper
+  extend ActiveSupport::Concern
 
-RSpec.describe "Api::V1::Bookmarks", type: :request do
-  path "/api/v1/bookmarks" do
-    get "List bookmarks" do
-      tags "Bookmarks"
-      produces "application/json"
-      security [api_key: []]
+  included do
+    include Committee::Rails::Test::Methods
 
-      parameter name: :limit, in: :query, type: :integer, required: false,
-                description: "Number of records to return (max 100)"
-      parameter name: :after, in: :query, type: :string, required: false,
-                description: "Cursor for the next page of results"
-
-      response "200", "Bookmarks retrieved" do
-        schema type: :object,
-          properties: {
-            data: {
-              type: :array,
-              items: { "$ref" => "#/components/schemas/Bookmark" }
-            },
-            meta: { "$ref" => "#/components/schemas/PaginationMeta" }
-          }
-
-        run_test!
-      end
-
-      response "401", "Unauthorized" do
-        schema "$ref" => "#/components/schemas/Error"
-        run_test!
-      end
-    end
-
-    post "Create a bookmark" do
-      tags "Bookmarks"
-      consumes "application/json"
-      produces "application/json"
-      security [api_key: []]
-
-      parameter name: :bookmark, in: :body, schema: {
-        type: :object,
-        properties: {
-          bookmark: {
-            type: :object,
-            properties: {
-              title: { type: :string },
-              url: { type: :string, format: :uri },
-              description: { type: :string },
-              collection_id: { type: :integer }
-            },
-            required: ["url"]
-          }
-        }
+    def committee_options
+      @committee_options ||= {
+        schema_path: Rails.root.join("docs", "openapi", "v1.yaml").to_s,
+        prefix: "/api/v1",
+        check_header: false
       }
-
-      response "201", "Bookmark created" do
-        schema type: :object,
-          properties: {
-            data: { "$ref" => "#/components/schemas/Bookmark" }
-          }
-
-        run_test!
-      end
-
-      response "422", "Validation failed" do
-        schema "$ref" => "#/components/schemas/Error"
-        run_test!
-      end
     end
+  end
+
+  def api_headers(account: nil)
+    headers = { "Content-Type" => "application/json" }
+    headers["X-Api-Key"] = account&.api_key if account
+    headers
   end
 end
 ```
 
-### Generating the spec
+### Writing integration tests with schema validation
 
-```bash
-rails rswag:specs:swaggerize
+```ruby
+# test/controllers/api/v1/bookmarks_controller_test.rb
+
+require "test_helper"
+
+class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
+  include ApiTestHelper
+
+  setup do
+    @account = accounts(:one)
+    @bookmark = bookmarks(:one)
+  end
+
+  # --- Authentication ---
+
+  test "returns 401 without an API key" do
+    get api_v1_bookmarks_url, headers: api_headers
+    assert_response :unauthorized
+    assert_schema_conform
+  end
+
+  # --- Index ---
+
+  test "lists bookmarks for the authenticated account" do
+    get api_v1_bookmarks_url, headers: api_headers(account: @account)
+    assert_response :ok
+    assert_schema_conform
+
+    json = JSON.parse(response.body)
+    assert json.key?("data")
+    assert json.key?("meta")
+  end
+
+  test "paginates with cursor" do
+    get api_v1_bookmarks_url,
+        params: { limit: 1 },
+        headers: api_headers(account: @account)
+    assert_response :ok
+    assert_schema_conform
+
+    json = JSON.parse(response.body)
+    assert_equal 1, json["data"].size
+  end
+
+  # --- Show ---
+
+  test "returns a single bookmark" do
+    get api_v1_bookmark_url(@bookmark), headers: api_headers(account: @account)
+    assert_response :ok
+    assert_schema_conform
+  end
+
+  test "returns 404 for a bookmark from another account" do
+    other_bookmark = bookmarks(:other_account)
+    get api_v1_bookmark_url(other_bookmark), headers: api_headers(account: @account)
+    assert_response :not_found
+    assert_schema_conform
+  end
+
+  # --- Create ---
+
+  test "creates a bookmark" do
+    assert_difference("Bookmark.count") do
+      post api_v1_bookmarks_url,
+           params: { bookmark: { url: "https://example.com", title: "New" } }.to_json,
+           headers: api_headers(account: @account)
+    end
+    assert_response :created
+    assert_schema_conform
+  end
+
+  test "returns 422 with invalid params" do
+    post api_v1_bookmarks_url,
+         params: { bookmark: { url: "" } }.to_json,
+         headers: api_headers(account: @account)
+    assert_response :unprocessable_entity
+    assert_schema_conform
+  end
+
+  # --- Update ---
+
+  test "updates a bookmark" do
+    patch api_v1_bookmark_url(@bookmark),
+          params: { bookmark: { title: "Updated" } }.to_json,
+          headers: api_headers(account: @account)
+    assert_response :ok
+    assert_schema_conform
+  end
+
+  # --- Destroy ---
+
+  test "deletes a bookmark" do
+    delete api_v1_bookmark_url(@bookmark), headers: api_headers(account: @account)
+    assert_response :no_content
+  end
+end
 ```
 
-This outputs `swagger/v1/swagger.yaml` which can be served at `/api-docs`.
+The key line is `assert_schema_conform` — committee checks that the response status, content type, and body all match what the OpenAPI spec declares. If your spec says a field is a string but you return an integer, the test fails.
 
-### Defining reusable schemas
+### Maintaining the OpenAPI spec
+
+Store the spec at `docs/openapi/v1.yaml`. This is a hand-maintained file — you own the contract.
 
 ```yaml
-# swagger/v1/swagger.yaml (components section)
+# docs/openapi/v1.yaml
+openapi: "3.0.3"
+info:
+  title: API V1
+  version: "1.0"
+
+servers:
+  - url: /api/v1
+
+paths:
+  /bookmarks:
+    get:
+      summary: List bookmarks
+      tags: [Bookmarks]
+      security: [{ api_key: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+          description: Number of records to return (max 100)
+        - name: after
+          in: query
+          schema: { type: string }
+          description: Cursor for the next page
+      responses:
+        "200":
+          description: Bookmarks retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Bookmark" }
+                  meta: { $ref: "#/components/schemas/PaginationMeta" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+    post:
+      summary: Create a bookmark
+      tags: [Bookmarks]
+      security: [{ api_key: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookmark:
+                  type: object
+                  properties:
+                    title: { type: string }
+                    url: { type: string, format: uri }
+                    description: { type: string }
+                    collection_id: { type: integer }
+                  required: [url]
+      responses:
+        "201":
+          description: Bookmark created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/Bookmark" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+  /bookmarks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+
+    get:
+      summary: Get a bookmark
+      tags: [Bookmarks]
+      security: [{ api_key: [] }]
+      responses:
+        "200":
+          description: Bookmark retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/Bookmark" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+    patch:
+      summary: Update a bookmark
+      tags: [Bookmarks]
+      security: [{ api_key: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookmark:
+                  type: object
+                  properties:
+                    title: { type: string }
+                    url: { type: string, format: uri }
+                    description: { type: string }
+                    collection_id: { type: integer }
+      responses:
+        "200":
+          description: Bookmark updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: "#/components/schemas/Bookmark" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationFailed" }
+
+    delete:
+      summary: Delete a bookmark
+      tags: [Bookmarks]
+      security: [{ api_key: [] }]
+      responses:
+        "204":
+          description: Bookmark deleted
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
 components:
   schemas:
     Bookmark:
       type: object
       properties:
-        id:
-          type: integer
-        title:
-          type: string
-        url:
-          type: string
-          format: uri
-        description:
-          type: string
-          nullable: true
-        host:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
+        id: { type: integer }
+        title: { type: string }
+        url: { type: string, format: uri }
+        description: { type: string, nullable: true }
+        host: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
 
     PaginationMeta:
       type: object
       properties:
-        next_cursor:
-          type: string
-          nullable: true
-        has_more:
-          type: boolean
-        limit:
-          type: integer
+        next_cursor: { type: string, nullable: true }
+        has_more: { type: boolean }
+        limit: { type: integer }
 
     Error:
       type: object
@@ -569,14 +733,28 @@ components:
         error:
           type: object
           properties:
-            status:
-              type: integer
-            message:
-              type: string
+            status: { type: integer }
+            message: { type: string }
             details:
               type: array
-              items:
-                type: string
+              items: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Invalid or missing API key
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ValidationFailed:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
 
   securitySchemes:
     api_key:
@@ -608,8 +786,8 @@ Use these consistently across all endpoints:
 3. **Reuse existing service objects** — don't duplicate business logic
 4. **Create a serializer** in `app/serializers/api/v1/` — only expose fields consumers need
 5. **Scope all queries** through `current_account`
-6. **Write request specs** with rswag to generate OpenAPI documentation
-7. **Regenerate the OpenAPI spec** with `rails rswag:specs:swaggerize`
+6. **Write integration tests** with `assert_schema_conform` to validate against the OpenAPI spec
+7. **Update the OpenAPI spec** at `docs/openapi/v1.yaml` with the new endpoint
 8. **Test error cases** — 401, 404, 422 responses
 9. **Verify cursor pagination** works for list endpoints
 10. **Check CORS** if the endpoint will be called from browsers

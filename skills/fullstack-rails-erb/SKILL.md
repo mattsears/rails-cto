@@ -48,19 +48,27 @@ If the command fails, inform the user:
 > ```
 >
 > Then run `bundle install && yarn install`."
->
-> To enable automatic attribute alignment, copy the included rewriter into your project:
->
-> ```bash
-> mkdir -p .herb/rewriters
-> cp templates/align-attributes.mjs .herb/rewriters/
-> ```
->
-> The rewriter source is bundled with this skill at [templates/align-attributes.mjs](templates/align-attributes.mjs). It vertically aligns HTML attributes when an element has two or more, matching the formatting rules in this skill.
 
-If Herb is not available, skip steps 2 and 3 below and continue with the rest of the ERB skill. Do not block on Herb installation. But if Herb IS available, you MUST run steps 2 and 3 — do not skip them.
+If Herb is not available, skip steps 2, 3, and 4 below and continue with the rest of the ERB skill. Do not block on Herb installation. But if Herb IS available, you MUST run steps 2, 3, and 4 — do not skip them.
 
-### 2. Identify changed ERB files
+### 2. Install the attribute alignment rewriter (if missing)
+
+Check if the project already has the rewriter:
+
+```bash
+ls .herb/rewriters/align-attributes.mjs 2>/dev/null
+```
+
+If the file does not exist, copy it from this skill's templates:
+
+```bash
+mkdir -p .herb/rewriters
+cp templates/align-attributes.mjs .herb/rewriters/
+```
+
+The rewriter source is bundled with this skill at [templates/align-attributes.mjs](templates/align-attributes.mjs). It vertically aligns HTML attributes when an element has two or more, matching the formatting rules in this skill.
+
+### 3. Identify changed ERB files
 
 Use git to find only the `.erb` files that were modified, not the entire codebase:
 
@@ -74,7 +82,7 @@ If there are unstaged changes too:
 git diff --name-only --diff-filter=ACMR | grep '\.erb$'
 ```
 
-### 3. Run Herb on changed files
+### 4. Run Herb on changed files
 
 For each changed `.erb` file, run the linter with auto-fix first, then the formatter:
 
