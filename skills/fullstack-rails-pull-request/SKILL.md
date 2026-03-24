@@ -31,7 +31,24 @@ If a PR already exists for this branch targeting `staging`, warn the user with t
 
 If there are any uncommitted or unstaged changes, commit them first using the `fullstack-commit` skill before continuing. This ensures everything is captured in the PR.
 
-### 3. Push to remote
+### 3. Sync with staging
+
+Pull the latest changes from `staging` into the current branch to ensure there are no merge conflicts before creating the PR. This saves the integration manager from dealing with conflicts during review.
+
+```bash
+git fetch origin staging
+git merge origin/staging
+```
+
+If there are merge conflicts:
+1. List the conflicting files and show the conflicts to the user
+2. Resolve each conflict — prefer the feature branch's changes where they are intentional, and keep staging's changes where they are unrelated updates
+3. After resolving, stage the files and commit the merge
+4. If the conflicts are complex or ambiguous, ask the user how to resolve them before proceeding
+
+If the merge is clean (no conflicts), continue to the next step.
+
+### 4. Push to remote
 
 Push the branch to the remote repository. If the branch has no upstream, set one:
 
@@ -41,7 +58,7 @@ git push -u origin "$(git branch --show-current)"
 
 If it already tracks a remote, a simple `git push` is fine.
 
-### 4. Gather the changes
+### 5. Gather the changes
 
 Review what this branch has changed relative to `staging`:
 
@@ -52,7 +69,7 @@ git diff staging...HEAD --stat
 
 Read the commit messages and the actual diffs to understand what changed and why.
 
-### 5. Write the PR title
+### 6. Write the PR title
 
 Write a short, plain-language title (under 72 characters) that describes what this branch accomplishes. Same rules as commit messages — no jargon, no technical shorthand, readable by anyone.
 
@@ -61,7 +78,7 @@ Write a short, plain-language title (under 72 characters) that describes what th
 - `Fix checkout button not working on mobile`
 - `Update pricing page with annual discount`
 
-### 6. Write the PR description
+### 7. Write the PR description
 
 Write the description in plain language. Organize changes into two sections so readers can quickly tell what's significant and what's minor.
 
@@ -88,7 +105,7 @@ A 1-2 sentence overview of what this branch does and why.
 
 If there are only major changes, omit the "Minor Changes" section. If everything is minor, omit "Major Changes." Use your judgment — the point is to help the reader focus their attention.
 
-### 7. Create the PR
+### 8. Create the PR
 
 ```bash
 gh pr create --base staging --title "the pr title" --body "$(cat <<'EOF'
