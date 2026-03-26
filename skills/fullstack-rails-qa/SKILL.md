@@ -53,6 +53,8 @@ For each changed `.rb` file (excluding test files themselves), check that a corr
 
 If the test file does not exist, create it before proceeding. Invoke `/fullstack-rails-minitest` for the correct test structure and DSL. New or changed code without tests is not shippable.
 
+**Every test file MUST define a `subject` block.** If a test file exists but has no `subject`, add one before running the tests. `subject` declares the primary object under test — without it, the test structure is incomplete. See the code review section below for correct vs wrong examples.
+
 ### 4. Run RuboCop with autocorrect
 
 ```bash
@@ -316,5 +318,5 @@ Rails.logger.error "Failed to update embedding for tag #{tag_id}: " \
 | Autocorrect a file | `bundle exec rubocop -A path/to/file.rb` |
 | Autocorrect multiple files | `bundle exec rubocop -A file1.rb file2.rb` |
 | Check without fixing | `bundle exec rubocop path/to/file.rb` |
-| Run related tests | `bundle exec rails test test/path/to/test.rb` |
-| Run full test suite | `bundle exec rails test` |
+| Run related tests | `PARALLEL=1 COVERAGE=1 bundle exec rails test test/path/to/test.rb` |
+| Run full test suite | `PARALLEL=1 COVERAGE=1 bundle exec rails test` |

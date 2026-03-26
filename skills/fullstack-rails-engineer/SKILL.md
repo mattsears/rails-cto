@@ -114,11 +114,12 @@ Break complex work into 3-5 stages. Document in `IMPLEMENTATION_PLAN.md`:
 
 ### 2. Implementation Flow
 
-1. **Understand** - Study existing patterns in codebase
-2. **Test** - Write test first (red)
-3. **Implement** - Minimal code to pass (green)
-4. **Refactor** - Clean up with tests passing
-5. **Commit** - With clear message linking to plan
+1. **Understand** — Study existing patterns in the codebase
+2. **Search for reusable code** — Before writing anything new, scan for existing modules, concerns, helpers, service objects, and utilities that already solve part of the problem. Check `app/models/concerns/`, `app/controllers/concerns/`, `app/helpers/`, `app/services/`, and `app/commands/`. If a similar pattern exists, extend or reuse it rather than creating something new. Three similar lines of code in different places is a signal to extract a shared abstraction.
+3. **Test** — Write test first (red)
+4. **Implement** — Minimal code to pass (green). Reuse the modules and patterns you found in step 2.
+5. **Refactor** — Clean up with tests passing. Look for any new duplication your changes introduced and extract shared code.
+6. **Commit** — With clear message linking to plan
 
 ### 3. When Stuck (After 3 Attempts)
 
@@ -243,7 +244,7 @@ rails db:setup
 rails meilisearch:reindex
 
 # Development workflow
-rails test                    # Run full test suite
+PARALLEL=1 COVERAGE=1 rails test  # Run full test suite
 rails console          # Rails console
 
 # Asset compilation
@@ -353,9 +354,9 @@ let(:company) { Fabricate(:company) }
 
 ### Running Tests
 ```bash
-rails test                           # All tests
-rails test test/models/company_test.rb  # Single file
-rails test -n "test_method_name"     # Single test
+PARALLEL=1 COVERAGE=1 rails test                           # All tests
+PARALLEL=1 COVERAGE=1 rails test test/models/company_test.rb  # Single file
+PARALLEL=1 COVERAGE=1 rails test -n "test_method_name"        # Single test
 ```
 
 ## Service Objects

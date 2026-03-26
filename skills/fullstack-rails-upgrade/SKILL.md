@@ -352,7 +352,7 @@ After completing the merge:
 
 3. Run the test suite:
    ```bash
-   bin/rails test
+   PARALLEL=1 COVERAGE=1 bin/rails test
    ```
 
 4. Review deprecation warnings in logs

@@ -88,16 +88,66 @@ end
 
 - **`let` blocks** — lazy-loaded supporting data (accounts, parent records, config).
   Reserve `let` for dependencies, not the primary object being tested.
-- **`subject` block (REQUIRED)** — the primary object under test. Every test class MUST
-  define a `subject` block that returns the main object being tested. For a model test,
-  `subject` is an instance of the model. For a command test, `subject` is an instance of
-  the command's input. For a controller test, `subject` is the authenticated account.
-  Use `let` only for supporting records that `subject` depends on. Then reference `subject`
-  throughout your `it` blocks — never re-instantiate the primary object inline.
 - **`before` blocks** — setup that runs before each test in the enclosing `describe`.
 - **`describe` blocks** — group by method (`"#instance_method"`, `".class_method"`) or
   behavior (`"when logged in"`, `"with invalid input"`).
 - **`it` blocks** — one behavior per test. Name describes the scenario, not the assertion.
+
+### The `subject` Rule (MANDATORY — DO NOT SKIP)
+
+**Every test class MUST define a `subject` block.** This is non-negotiable. A test file without `subject` is incomplete. Do NOT use `let` for the primary object and do NOT instantiate it inline inside `it` blocks.
+
+`subject` is the primary object under test:
+- **Model test** → `subject` is an instance of the model
+- **Command/service test** → `subject` is an instance of the command's input record
+- **Controller test** → `subject` is the authenticated account
+- **Job test** → `subject` is the job instance or the record being processed
+- **Component test** → `subject` is the component instance
+
+Then reference `subject` in every `it` block instead of creating the object again:
+
+```ruby
+# CORRECT — subject is defined and used throughout
+class BookmarkTest < ActiveSupport::TestCase
+  let(:account) { Fabricate(:account) }
+
+  subject { Fabricate.build(:bookmark, owner: account, url: "https://example.com/path") }
+
+  describe "#host" do
+    it "returns the host from the URL" do
+      assert_equal "example.com", subject.host
+    end
+  end
+
+  describe "#valid?" do
+    it "requires a URL" do
+      subject.url = nil
+      assert_not subject.valid?
+    end
+  end
+end
+```
+
+```ruby
+# WRONG — no subject, object created inline in each test
+class BookmarkTest < ActiveSupport::TestCase
+  describe "#host" do
+    it "returns the host from the URL" do
+      bookmark = Fabricate.build(:bookmark, url: "https://example.com/path")
+      assert_equal "example.com", bookmark.host
+    end
+  end
+
+  describe "#valid?" do
+    it "requires a URL" do
+      bookmark = Fabricate.build(:bookmark, url: nil)
+      assert_not bookmark.valid?
+    end
+  end
+end
+```
+
+If you are writing a test and have not defined `subject`, stop and add it before continuing.
 
 ### Assertions
 

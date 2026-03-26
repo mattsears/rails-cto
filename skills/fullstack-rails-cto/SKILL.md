@@ -48,7 +48,7 @@ If the test file does not exist, create it. If it exists, update it to cover the
 
 1. **Run RuboCop with autocorrect** — Execute `bundle exec rubocop -A path/to/changed_file.rb` on every modified file. Fix any offenses that autocorrect cannot resolve. Do not modify `.rubocop.yml` to suppress warnings.
 2. **Identify related test files** — Find tests for the modified models, controllers, services, jobs, or components. If the test file does not exist, create it first.
-3. **Run the related tests** — Execute `rails test test/path/to/related_test.rb` for each related test file.
+3. **Run the related tests** — Execute `PARALLEL=1 COVERAGE=1 rails test test/path/to/related_test.rb` for each related test file.
 4. **Fix any failures** — If RuboCop or tests fail, fix the code and re-run until both pass.
 5. **Do not skip these steps** — Even if the user doesn't ask. Unlinted, untested changes break on CI.
 
@@ -67,7 +67,7 @@ When creating any implementation plan, always include `/fullstack-rails-qa` as a
 1. [ ] **Reuse existing code** — Scan the codebase for similar patterns before writing new code
 2. [ ] **Write tests** — Every new or changed method gets a test
 3. [ ] **Run RuboCop** — `bundle exec rubocop -A` on all modified `.rb` files. Do NOT modify `.rubocop.yml` or add workarounds
-4. [ ] **Run related tests** — `rails test` on all related test files. Do NOT skip tests
+4. [ ] **Run related tests** — `PARALLEL=1 COVERAGE=1 rails test` on all related test files. Do NOT skip tests
 5. [ ] **Remove debug statements** — Delete any `console.log`, `Rails.logger`, `puts`, `pp`, or `binding.pry` added during development
 6. [ ] **DRY** — Remove duplicate code and dead code that is no longer called
 7. [ ] **Update Pundit policies** — Add policy methods in `app/policies/` for any new controller actions
