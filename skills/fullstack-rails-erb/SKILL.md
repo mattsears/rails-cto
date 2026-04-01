@@ -98,7 +98,7 @@ bundle exec herb --fix app/views/bookmarks/index.html.erb app/views/bookmarks/_b
 bundle exec herb format app/views/bookmarks/index.html.erb app/views/bookmarks/_bookmark.html.erb
 ```
 
-Review the output for any issues that couldn't be auto-fixed — these need manual attention.
+Review the output for any issues that couldn't be auto-fixed — these need manual attention. **Fix ALL warnings in the file, not just ones you introduced.** If Herb reports pre-existing issues unrelated to your changes, fix them anyway. Every file you touch should be left with zero Herb warnings.
 
 ---
 

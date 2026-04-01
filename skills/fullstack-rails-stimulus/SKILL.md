@@ -17,6 +17,43 @@ Before writing a new controller, search the existing controllers in `app/fronten
 
 If no existing controller fits, design the new one for **general-purpose reuse**. Controllers should not be tightly coupled to a single view or feature. Keep behavior generic and configurable through values, targets, and action parameters so the same controller can be wired into different contexts without duplication. Place broadly reusable controllers in `utils/`; only use domain namespaces (`bookmarks/`, `feeds/`) when the behavior is truly domain-specific.
 
+### NEVER create single-purpose controllers
+
+Every Stimulus controller must be designed to work across multiple views and contexts. Ask: "Could another page need this same behavior?" If yes — and the answer is almost always yes — name and design it generically.
+
+**Name controllers after the behavior, not the feature:**
+
+| Task | WRONG (single-purpose) | RIGHT (reusable) |
+|---|---|---|
+| Save form when checkbox toggled | `bookmark_auto_check_controller.js` | `toggle_submit_controller.js` |
+| Dismiss a flash message | `flash_close_controller.js` | `dismissable_controller.js` |
+| Copy text to clipboard on click | `share_link_copy_controller.js` | `clipboard_controller.js` |
+| Show/hide a section | `settings_panel_toggle_controller.js` | `toggle_element_controller.js` |
+| Submit form on input change | `search_auto_submit_controller.js` | `auto_submit_controller.js` |
+| Confirm before destructive action | `delete_bookmark_confirm_controller.js` | `confirm_action_controller.js` |
+
+**Drive specifics through values and targets, not hard-coded selectors:**
+
+```js
+// WRONG — hard-coded to one specific form
+export default class extends Controller {
+  save() {
+    document.querySelector("#bookmark-settings-form").requestSubmit();
+  }
+}
+
+// RIGHT — works with any form via targets
+export default class extends Controller {
+  static targets = ["form"];
+
+  save() {
+    this.formTarget.requestSubmit();
+  }
+}
+```
+
+If you find yourself including a feature name (bookmark, user, feed, setting) in the controller filename, stop and rethink. The controller is probably too specific.
+
 ## File Layout
 
 ```
