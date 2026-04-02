@@ -38,7 +38,8 @@
         "./skills/fullstack-rails-view-component",
         "./skills/fullstack-rails-commit",
         "./skills/fullstack-rails-pull-request",
-        "./skills/fullstack-rails-production-pr"
+        "./skills/fullstack-rails-production-pr",
+        "./skills/fullstack-rails-security"
       ]
     }
   ]

@@ -24,6 +24,7 @@ Invoke these skills automatically when the task matches — do not wait for the 
 | `fullstack-rails-stimulus` | Creating or modifying Stimulus controllers or adding `data-*` attributes |
 | `fullstack-rails-minitest` | Writing or modifying tests, OR creating/modifying any model, controller, service, job, or component that needs test coverage |
 | `fullstack-rails-qa` | After modifying any `.rb` file — linting, tests, and code review |
+| `fullstack-rails-security` | After modifying any `.rb` or `.html.erb` file — Brakeman security scan |
 | `fullstack-rails-view-component` | Creating reusable UI components with ViewComponent |
 | `fullstack-rails-upgrade` | Upgrading Rails versions |
 

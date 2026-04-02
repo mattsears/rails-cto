@@ -2,31 +2,33 @@
 
 Opinionated Claude Code plugin for Ruby on Rails development — orchestration, code quality, testing, and git workflows.
 
+
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
-| `fullstack-rails-cto` | Orchestrator — session init, skill routing, QA gates, completion checklist |
-| `fullstack-rails-engineer` | Core Rails development guidance and patterns |
-| `fullstack-rails-api` | RESTful JSON API conventions and OpenAPI standards |
-| `fullstack-rails-erb` | ERB view and partial conventions |
-| `fullstack-rails-minitest` | Minitest with Spec DSL, parallel tests, SimpleCov coverage |
-| `fullstack-rails-qa` | Quality assurance — linting, testing, and code review |
-| `fullstack-rails-restful` | RESTful controller and routing patterns |
-| `fullstack-rails-stimulus` | Stimulus controller conventions and Turbo integration |
-| `fullstack-rails-tailwind` | Tailwind CSS best practices, design system, dark mode, responsive, accessibility |
-| `fullstack-rails-upgrade` | Rails version upgrade guidance |
-| `fullstack-rails-view-component` | ViewComponent patterns |
-| `fullstack-rails-commit` | Stage and commit all changes with human-friendly messages |
-| `fullstack-rails-pull-request` | Create PRs targeting staging |
-| `fullstack-rails-production-pr` | Create production PRs (staging to main) |
+| Skill                            | Description                                                                      |
+|----------------------------------|----------------------------------------------------------------------------------|
+| `fullstack-rails-cto`            | Orchestrator — session init, skill routing, QA gates, completion checklist       |
+| `fullstack-rails-engineer`       | Core Rails development guidance and patterns                                     |
+| `fullstack-rails-api`            | RESTful JSON API conventions and OpenAPI standards                               |
+| `fullstack-rails-erb`            | ERB view and partial conventions                                                 |
+| `fullstack-rails-minitest`       | Minitest with Spec DSL, parallel tests, SimpleCov coverage                       |
+| `fullstack-rails-qa`             | Quality assurance — linting, testing, and code review                            |
+| `fullstack-rails-restful`        | RESTful controller and routing patterns                                          |
+| `fullstack-rails-stimulus`       | Stimulus controller conventions and Turbo integration                            |
+| `fullstack-rails-tailwind`       | Tailwind CSS best practices, design system, dark mode, responsive, accessibility |
+| `fullstack-rails-upgrade`        | Rails version upgrade guidance                                                   |
+| `fullstack-rails-view-component` | ViewComponent patterns                                                           |
+| `fullstack-rails-security`       | Brakeman security scanning — fix high/medium warnings on changed files           |
+| `fullstack-rails-commit`         | Stage and commit all changes with human-friendly messages                        |
+| `fullstack-rails-pull-request`   | Create PRs targeting staging                                                     |
+| `fullstack-rails-production-pr`  | Create production PRs (staging to main)                                          |
 
 ### Marketplace Dependencies
 
 These skills reference third-party skills from the Claude Code marketplace:
 
-| Skill | Marketplace | Used By |
-|-------|-------------|---------|
+| Skill                         | Marketplace                                   | Used By                    |
+|-------------------------------|-----------------------------------------------|----------------------------|
 | `better-stimulus@obie-skills` | [obie/skills](https://github.com/obie/skills) | `fullstack-rails-stimulus` |
 
 ## Installation
@@ -68,6 +70,9 @@ These gems are used by various skills for linting, formatting, testing, and docu
 gem "rubocop", require: false
 gem "rubocop-rails", require: false
 gem "rubocop-minitest", require: false
+
+# Security scanning (used by fullstack-rails-security)
+gem "brakeman", require: false
 
 # ERB linting and formatting (used by fullstack-rails-erb)
 gem "herb"
@@ -113,6 +118,25 @@ rewriter:
 ```
 
 The `align-attributes` rewriter is bundled with the ERB skill and will be copied into your project's `.herb/rewriters/` automatically when the skill runs.
+
+For Brakeman, create a `config/brakeman.yml` in your Rails project:
+
+```yaml
+---
+# Only report high and medium confidence warnings
+:min_confidence: 1
+
+# Output format
+:output_format: json
+
+# Quiet mode
+:quiet: true
+
+# Ignored warning fingerprints (add false positives here)
+:ignored_warnings: []
+```
+
+The security skill will create this config automatically if missing, but adding it upfront ensures consistent behavior across the team.
 
 None of these are strictly required — each skill gracefully skips its tooling when the gem isn't present. But you'll get the most value with all of them installed.
 
@@ -188,6 +212,7 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-tailwind/
 │   ├── fullstack-rails-upgrade/
 │   ├── fullstack-rails-view-component/
+│   ├── fullstack-rails-security/
 │   ├── fullstack-rails-commit/
 │   ├── fullstack-rails-pull-request/
 │   └── fullstack-rails-production-pr/

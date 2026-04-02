@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Stop hook: blocks completion if code files were changed but /fullstack-rails-qa was not run.
+# Stop hook: blocks completion if code files were changed but required quality gates were not run.
 #
 # Checks for modified .rb, .js, .erb, and .css files.
+# Requires both /fullstack-rails-qa and /fullstack-rails-security to have been invoked.
 # Uses the same PPID-based session marker pattern as the other hooks.
 set -euo pipefail
 
@@ -16,11 +17,26 @@ if [[ -z "$changes" && -z "$unstaged" && -z "$untracked" ]]; then
   exit 0
 fi
 
-# Check if QA skill was loaded this session
-marker="/tmp/claude-fullstack-rails-qa-loaded-${PPID}"
-if [[ -f "$marker" ]]; then
-  exit 0
+# Check which required skills are missing
+missing=()
+
+qa_marker="/tmp/claude-fullstack-rails-qa-loaded-${PPID}"
+[[ -f "$qa_marker" ]] || missing+=("/fullstack-rails-qa")
+
+# Security scan is required when .rb or .erb files were changed
+security_pattern='\.(rb|erb)$'
+sec_changes=$(echo "$changes" | grep -E "$security_pattern" || true)
+sec_unstaged=$(echo "$unstaged" | grep -E "$security_pattern" || true)
+sec_untracked=$(echo "$untracked" | grep -E "$security_pattern" || true)
+
+if [[ -n "$sec_changes" || -n "$sec_unstaged" || -n "$sec_untracked" ]]; then
+  security_marker="/tmp/claude-fullstack-rails-security-loaded-${PPID}"
+  [[ -f "$security_marker" ]] || missing+=("/fullstack-rails-security")
 fi
 
-# Block — Claude must run QA before finishing
-echo '{"decision":"block","reason":"Code files (.rb, .js, .erb, or .css) were modified but /fullstack-rails-qa has not been run. Invoke the QA skill to run linting and tests before completing."}'
+# All required skills loaded
+[[ ${#missing[@]} -gt 0 ]] || exit 0
+
+# Block — list all missing skills
+skills_list=$(IFS=', '; echo "${missing[*]}")
+echo "{\"decision\":\"block\",\"reason\":\"Code files were modified but required quality gates have not been run: ${skills_list}. Invoke them before completing.\"}"
