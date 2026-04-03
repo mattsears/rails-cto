@@ -42,23 +42,11 @@ These skills reference third-party skills from the Claude Code marketplace:
 
 ### Install marketplace dependencies
 
-Add the following to your `~/.claude/settings.json`:
+The Stimulus skill depends on `better-stimulus@obie-skills`. Install it from the [obie/skills](https://github.com/obie/skills) marketplace:
 
-Under `enabledPlugins`:
-
-```json
-"better-stimulus@obie-skills": true
-```
-
-Under `extraKnownMarketplaces`:
-
-```json
-"obie-skills": {
-  "source": {
-    "source": "github",
-    "repo": "obie/skills"
-  }
-}
+```bash
+/plugin marketplace add obie/skills
+/plugin install better-stimulus@obie-skills
 ```
 
 ### Recommended gems

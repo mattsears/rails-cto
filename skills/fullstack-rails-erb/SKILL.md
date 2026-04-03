@@ -51,22 +51,26 @@ If the command fails, inform the user:
 
 If Herb is not available, skip steps 2, 3, and 4 below and continue with the rest of the ERB skill. Do not block on Herb installation. But if Herb IS available, you MUST run steps 2, 3, and 4 — do not skip them.
 
-### 2. Install the attribute alignment rewriter (if missing)
+### 2. Install bundled rewriters and rules (if missing)
 
-Check if the project already has the rewriter:
+Check if the project already has the attribute alignment rewriter and the no-inline-styles rule:
 
 ```bash
 ls .herb/rewriters/align-attributes.mjs 2>/dev/null
+ls .herb/rules/no-inline-styles.mjs 2>/dev/null
 ```
 
-If the file does not exist, copy it from this skill's templates:
+If either file does not exist, copy it from this skill's templates:
 
 ```bash
-mkdir -p .herb/rewriters
+mkdir -p .herb/rewriters .herb/rules
 cp templates/align-attributes.mjs .herb/rewriters/
+cp templates/no-inline-styles.mjs .herb/rules/
 ```
 
-The rewriter source is bundled with this skill at [templates/align-attributes.mjs](templates/align-attributes.mjs). It vertically aligns HTML attributes when an element has two or more, matching the formatting rules in this skill.
+Bundled with this skill:
+- [templates/align-attributes.mjs](templates/align-attributes.mjs) — vertically aligns HTML attributes when an element has two or more
+- [templates/no-inline-styles.mjs](templates/no-inline-styles.mjs) — flags `style="..."` attributes and enforces Tailwind utility classes instead
 
 ### 3. Identify changed ERB files
 
@@ -218,15 +222,15 @@ When you see an inline variable in ERB, move it:
 **Math and calculations:**
 
 ```erb
-<%# WRONG — arithmetic in the template %>
+<%# WRONG — arithmetic in the template, inline styles %>
 <span><%= (bookmark.reading_time / 60.0).ceil %> min read</span>
 <span><%= ((completed.to_f / total) * 100).round %>% complete</span>
 <div style="width: <%= (tag.taggings_count.to_f / max_count * 100).round %>%">
 
-<%# RIGHT — computed in controller or model, rendered here %>
+<%# RIGHT — computed in controller or model, Tailwind classes instead of inline styles %>
 <span><%= bookmark.reading_time_display %></span>
 <span><%= @completion_percentage %>% complete</span>
-<div style="width: <%= tag.weight_percentage %>%">
+<div class="<%= tag.weight_class %>">
 ```
 
 **Database queries:**
@@ -261,6 +265,40 @@ The one exception is reading partial locals with defaults at the top of a partia
 ```
 
 Keep these at the very top of the file, right after the header comment.
+
+---
+
+## No Inline Styles
+
+Never use `style="..."` attributes in ERB templates. Use Tailwind CSS utility classes instead. Inline styles bypass the design system, can't be purged, don't support responsive or dark mode variants, and make templates harder to scan.
+
+The bundled `no-inline-styles.mjs` Herb rule flags these automatically during the lint step.
+
+```erb
+<%# WRONG — inline styles %>
+<div style="display: flex; gap: 8px; padding: 16px;">
+<div style="width: 50%">
+<span style="color: red; font-weight: bold;">Error</span>
+<div style="margin-top: 1rem; border-bottom: 1px solid #e5e7eb;">
+
+<%# RIGHT — Tailwind utility classes %>
+<div class="flex gap-2 p-4">
+<div class="w-1/2">
+<span class="text-red-600 font-bold">Error</span>
+<div class="mt-4 border-b border-gray-200 dark:border-gray-700">
+```
+
+**Dynamic widths and computed values** — when the width depends on data (e.g., progress bars), use a model method that returns a Tailwind class:
+
+```erb
+<%# WRONG — inline style for dynamic width %>
+<div style="width: <%= @progress %>%">
+
+<%# RIGHT — model returns a Tailwind class like "w-1/4", "w-1/2", "w-3/4", "w-full" %>
+<div class="<%= @progress_width_class %>">
+```
+
+If the value truly cannot map to a Tailwind class (e.g., pixel-precise positioning from user data), extract it to a ViewComponent or helper that encapsulates the style — never put it inline in a template.
 
 ---
 
@@ -465,3 +503,4 @@ Avoid duplicating markup across views. If the same UI pattern appears in more th
 | Put local defaults at top of partial | Scatter variable assignments throughout |
 | Use `local_assigns.fetch(:key, default)` | Use complex ternaries for defaults |
 | Pass data as locals or instance vars | Compute derived values inline |
+| Use Tailwind classes for all styling | Use `style="..."` inline attributes |
