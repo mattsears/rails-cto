@@ -75,6 +75,12 @@ Review the output for:
 
 If RuboCop reports remaining offenses after `-A`, fix them manually and re-run.
 
+### 4b. Run static analysis (Reek, Flog, Flay)
+
+After RuboCop passes, invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans for code smells, excessive complexity, and structural duplication — and auto-refactors when issues are found.
+
+Do not proceed to tests until static analysis passes or the user acknowledges remaining issues.
+
 ### 5. Run tests
 
 After RuboCop passes, run the tests for the files you changed in parallel with coverage enabled:
@@ -320,3 +326,4 @@ Rails.logger.error "Failed to update embedding for tag #{tag_id}: " \
 | Check without fixing | `bundle exec rubocop path/to/file.rb` |
 | Run related tests | `PARALLEL=1 COVERAGE=1 bundle exec rails test test/path/to/test.rb` |
 | Run full test suite | `PARALLEL=1 COVERAGE=1 bundle exec rails test` |
+| Static analysis | `/fullstack-rails-static-analysis` (invoked automatically after RuboCop) |

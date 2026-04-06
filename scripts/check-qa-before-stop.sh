@@ -2,7 +2,7 @@
 # Stop hook: blocks completion if code files were changed but required quality gates were not run.
 #
 # Checks for modified .rb, .js, .erb, and .css files.
-# Requires both /fullstack-rails-qa and /fullstack-rails-security to have been invoked.
+# Requires /fullstack-rails-qa, /fullstack-rails-security, and /fullstack-rails-static-analysis to have been invoked.
 # Uses the same PPID-based session marker pattern as the other hooks.
 set -euo pipefail
 
@@ -32,6 +32,17 @@ sec_untracked=$(echo "$untracked" | grep -E "$security_pattern" || true)
 if [[ -n "$sec_changes" || -n "$sec_unstaged" || -n "$sec_untracked" ]]; then
   security_marker="/tmp/claude-fullstack-rails-security-loaded-${PPID}"
   [[ -f "$security_marker" ]] || missing+=("/fullstack-rails-security")
+fi
+
+# Static analysis is required when .rb files were changed
+sa_pattern='\.rb$'
+sa_changes=$(echo "$changes" | grep -E "$sa_pattern" || true)
+sa_unstaged=$(echo "$unstaged" | grep -E "$sa_pattern" || true)
+sa_untracked=$(echo "$untracked" | grep -E "$sa_pattern" || true)
+
+if [[ -n "$sa_changes" || -n "$sa_unstaged" || -n "$sa_untracked" ]]; then
+  sa_marker="/tmp/claude-fullstack-rails-static-analysis-loaded-${PPID}"
+  [[ -f "$sa_marker" ]] || missing+=("/fullstack-rails-static-analysis")
 fi
 
 # All required skills loaded

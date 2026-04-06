@@ -2,7 +2,6 @@
 
 Opinionated Claude Code plugin for Ruby on Rails development — orchestration, code quality, testing, and git workflows.
 
-
 ## Skills
 
 | Skill                            | Description                                                                      |
@@ -19,6 +18,7 @@ Opinionated Claude Code plugin for Ruby on Rails development — orchestration, 
 | `fullstack-rails-upgrade`        | Rails version upgrade guidance                                                   |
 | `fullstack-rails-view-component` | ViewComponent patterns                                                           |
 | `fullstack-rails-security`       | Brakeman security scanning — fix high/medium warnings on changed files           |
+| `fullstack-rails-static-analysis`| Static analysis — Reek (code smells), Flog (complexity), Flay (duplication)      |
 | `fullstack-rails-commit`         | Stage and commit all changes with human-friendly messages                        |
 | `fullstack-rails-pull-request`   | Create PRs targeting staging                                                     |
 | `fullstack-rails-production-pr`  | Create production PRs (staging to main)                                          |
@@ -61,6 +61,11 @@ gem "rubocop-minitest", require: false
 
 # Security scanning (used by fullstack-rails-security)
 gem "brakeman", require: false
+
+# Static analysis (used by fullstack-rails-static-analysis)
+gem "reek", require: false
+gem "flog", require: false
+gem "flay", require: false
 
 # ERB linting and formatting (used by fullstack-rails-erb)
 gem "herb"
@@ -125,6 +130,8 @@ For Brakeman, create a `config/brakeman.yml` in your Rails project:
 ```
 
 The security skill will create this config automatically if missing, but adding it upfront ensures consistent behavior across the team.
+
+For Reek, the static analysis skill will create a `.reek.yml` with Rails-friendly defaults automatically if one is missing. To customize, add your own `.reek.yml` to the project root. The default config suppresses common Rails patterns (e.g., `TooManyStatements` in migrations, `ControlCouple` in controllers, `IrresponsibleModule` globally) and disables scanning the `test/` directory.
 
 None of these are strictly required — each skill gracefully skips its tooling when the gem isn't present. But you'll get the most value with all of them installed.
 
@@ -201,6 +208,7 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-upgrade/
 │   ├── fullstack-rails-view-component/
 │   ├── fullstack-rails-security/
+│   ├── fullstack-rails-static-analysis/
 │   ├── fullstack-rails-commit/
 │   ├── fullstack-rails-pull-request/
 │   └── fullstack-rails-production-pr/
