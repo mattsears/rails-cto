@@ -10,7 +10,7 @@ description: >
 
 # Static Analysis (Reek, Flog, Flay)
 
-Every `.rb` change is analyzed with Reek, Flog, and Flay before the work is considered done. Code smells are fixed, complex methods are refactored, and duplication is eliminated. This skill runs after RuboCop — it is a post-lint quality gate, not a write blocker.
+Every `.rb` change is analyzed with Reek, Flog, and Flay before the work is considered done. Code smells are fixed, complex methods are refactored, and duplication is eliminated. This skill runs before RuboCop and tests — refactor first, then lint and verify.
 
 ## Pre-flight
 

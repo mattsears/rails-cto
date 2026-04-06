@@ -55,7 +55,13 @@ If the test file does not exist, create it before proceeding. Invoke `/fullstack
 
 **Every test file MUST define a `subject` block.** If a test file exists but has no `subject`, add one before running the tests. `subject` declares the primary object under test — without it, the test structure is incomplete. See the code review section below for correct vs wrong examples.
 
-### 4. Run RuboCop with autocorrect
+### 4. Run static analysis (Reek, Flog, Flay)
+
+Invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans for code smells, excessive complexity, and structural duplication — and auto-refactors when issues are found.
+
+Do not proceed to RuboCop until static analysis passes or the user acknowledges remaining issues.
+
+### 5. Run RuboCop with autocorrect
 
 ```bash
 bundle exec rubocop -A path/to/changed_file.rb
@@ -75,13 +81,7 @@ Review the output for:
 
 If RuboCop reports remaining offenses after `-A`, fix them manually and re-run.
 
-### 4b. Run static analysis (Reek, Flog, Flay)
-
-After RuboCop passes, invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans for code smells, excessive complexity, and structural duplication — and auto-refactors when issues are found.
-
-Do not proceed to tests until static analysis passes or the user acknowledges remaining issues.
-
-### 5. Run tests
+### 6. Run tests
 
 After RuboCop passes, run the tests for the files you changed in parallel with coverage enabled:
 
@@ -95,7 +95,7 @@ If you changed a model, run its model test. If you changed a controller, run its
 COVERAGE=1 PARALLEL=1 bundle exec rails test
 ```
 
-### 6. Check code coverage
+### 7. Check code coverage
 
 After tests pass, check for `coverage/coverage.json` in the project root. If it exists, read it to verify your tests adequately cover the changed code.
 
@@ -110,7 +110,7 @@ After tests pass, check for `coverage/coverage.json` in the project root. If it 
 
 If `coverage/coverage.json` does not exist, skip this step.
 
-### 7. Code review
+### 8. Code review
 
 After linting and tests pass, review the changed code against these quality checks. This is where you catch the things that automated tools miss.
 
