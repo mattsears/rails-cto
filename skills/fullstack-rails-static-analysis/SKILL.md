@@ -20,9 +20,11 @@ Before running any analysis, verify each tool is installed. Run all three checks
 
 ```bash
 bundle exec reek --version 2>/dev/null
-bundle exec flog --version 2>/dev/null
+bundle exec ruby -e "require 'flog'" 2>/dev/null
 bundle exec flay --version 2>/dev/null
 ```
+
+**Note:** Flog does not support a `--version` flag. Use `require 'flog'` to verify it's installed.
 
 If a tool is **not available**, print this message and skip that tool's steps (but continue with the others):
 
@@ -57,7 +59,46 @@ git diff --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.rb$' | sort -u
 
 Combine and deduplicate both lists. If no `.rb` files changed, skip all scans and report "No Ruby files changed — static analysis skipped."
 
-## Step 1: Reek — Code Smell Detection
+## Step 1: Method Documentation Check
+
+Every Ruby method must have a comment directly above the `def` line describing **why** it exists — not what it does (the code shows that). Focus on intent, context, or the business reason.
+
+### Scan changed files
+
+For each changed `.rb` file, scan for `def` declarations and verify a comment appears on the line(s) immediately above. If any methods are missing a comment, add one before proceeding.
+
+### What a good comment looks like
+
+```ruby
+# Ensures the user sees their most relevant bookmarks first,
+# because recently active tags reflect current interests.
+def prioritized_bookmarks
+  bookmarks.joins(:tags).order("tags.updated_at DESC")
+end
+
+# Strips tracking parameters so we store clean URLs
+# and don't leak referral data to downstream services.
+def sanitize_url(url)
+  URI.parse(url).tap { |u| u.query = nil }.to_s
+end
+```
+
+### What to skip
+
+Do not add comments to trivial or framework-conventional methods where intent is self-evident:
+
+- `initialize` with simple assignment
+- Single-line delegation (`delegate :name, to: :user`)
+- Accessor-style methods (`def name = @name`)
+- Standard Rails callbacks already named descriptively (`before_save :normalize_email`)
+- Empty method stubs or `super`-only overrides
+- Test methods (`it`, `test`, `describe` blocks)
+
+### Auto-fix
+
+For each undocumented method, read the method body and write a one-line comment explaining **why** the method exists. If the reason isn't clear from context, write what it does and flag it for the user to refine. After adding comments, move on to Reek.
+
+## Step 2: Reek — Code Smell Detection
 
 Run Reek on each changed file individually:
 
@@ -106,7 +147,7 @@ Use this table to decide what to fix and how:
 - **Ask the user first** if the fix would rename a public method, change a method signature, or move a method to a different class.
 - After fixing, re-run Reek on the file to verify the smell is gone.
 
-## Step 2: Flog — Complexity Measurement
+## Step 3: Flog — Complexity Measurement
 
 Run Flog on each changed file individually:
 
@@ -145,7 +186,7 @@ For methods scoring above 25:
 
 If the score remains above 25 after one refactoring pass, report the method and its score to the user and move on.
 
-## Step 3: Flay — Duplication Detection
+## Step 4: Flay — Duplication Detection
 
 Flay identifies structural similarities in code, ignoring surface-level differences like variable names, literal values, and whitespace.
 
