@@ -95,7 +95,7 @@ end
 
 ### The `subject` Rule (MANDATORY — DO NOT SKIP)
 
-**Every test class MUST define a `subject` block.** This is non-negotiable. A test file without `subject` is incomplete. Do NOT use `let` for the primary object and do NOT instantiate it inline inside `it` blocks.
+**Every test class MUST define a `subject` block exactly once at the top of the class.** This is non-negotiable. A test file without `subject` is incomplete. Do NOT use `let` for the primary object, do NOT instantiate it inline inside `it` blocks, and do NOT reassign `subject` inside `it` or `describe` blocks.
 
 `subject` is the primary object under test:
 - **Model test** → `subject` is an instance of the model
@@ -104,10 +104,80 @@ end
 - **Job test** → `subject` is the job instance or the record being processed
 - **Component test** → `subject` is the component instance
 
-Then reference `subject` in every `it` block instead of creating the object again:
+### Varying `subject` across scenarios
+
+When different tests need different attributes on the primary object, use a `let(:attributes)` block that `subject` references. Each nested `describe` overrides `let(:attributes)` to customize for that scenario. **Never reassign `subject` inline.**
 
 ```ruby
-# CORRECT — subject is defined and used throughout
+# CORRECT — subject declared once, variations via let(:attributes)
+class PlanDecoratorTest < ActiveSupport::TestCase
+  let(:attributes) { {} }
+
+  subject { Fabricate.build(:plan, **attributes) }
+
+  describe "#price_summary" do
+    describe "with monthly interval" do
+      let(:attributes) { { amount: 1200, interval: "month" } }
+
+      it "returns formatted price" do
+        assert_equal "$12.00 / month", subject.price_summary
+      end
+    end
+
+    describe "with yearly interval" do
+      let(:attributes) { { amount: 9600, interval: "year" } }
+
+      it "returns formatted price" do
+        assert_equal "$96.00 / year", subject.price_summary
+      end
+    end
+
+    describe "with zero amount" do
+      let(:attributes) { { amount: 0, interval: "month" } }
+
+      it "handles zero" do
+        assert_equal "$0.00 / month", subject.price_summary
+      end
+    end
+  end
+end
+```
+
+```ruby
+# WRONG — subject reassigned inline in each test
+class PlanDecoratorTest < ActiveSupport::TestCase
+  describe "#price_summary" do
+    it "returns formatted price with monthly interval" do
+      subject = Fabricate.build(:plan, amount: 1200, interval: "month")
+      assert_equal "$12.00 / month", subject.price_summary
+    end
+
+    it "returns formatted price with yearly interval" do
+      subject = Fabricate.build(:plan, amount: 9600, interval: "year")
+      assert_equal "$96.00 / year", subject.price_summary
+    end
+  end
+end
+```
+
+```ruby
+# ALSO WRONG — no subject, object created with a local variable
+class BookmarkTest < ActiveSupport::TestCase
+  describe "#host" do
+    it "returns the host from the URL" do
+      bookmark = Fabricate.build(:bookmark, url: "https://example.com/path")
+      assert_equal "example.com", bookmark.host
+    end
+  end
+end
+```
+
+### When `subject` doesn't need variations
+
+If every test uses the same attributes, define `subject` directly without the `let(:attributes)` pattern:
+
+```ruby
+# CORRECT — simple subject, no variations needed
 class BookmarkTest < ActiveSupport::TestCase
   let(:account) { Fabricate(:account) }
 
@@ -128,26 +198,7 @@ class BookmarkTest < ActiveSupport::TestCase
 end
 ```
 
-```ruby
-# WRONG — no subject, object created inline in each test
-class BookmarkTest < ActiveSupport::TestCase
-  describe "#host" do
-    it "returns the host from the URL" do
-      bookmark = Fabricate.build(:bookmark, url: "https://example.com/path")
-      assert_equal "example.com", bookmark.host
-    end
-  end
-
-  describe "#valid?" do
-    it "requires a URL" do
-      bookmark = Fabricate.build(:bookmark, url: nil)
-      assert_not bookmark.valid?
-    end
-  end
-end
-```
-
-If you are writing a test and have not defined `subject`, stop and add it before continuing.
+If you are writing a test and have not defined `subject` at the top of the class, stop and add it before continuing.
 
 ### Assertions
 

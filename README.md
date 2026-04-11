@@ -4,24 +4,24 @@ Opinionated Claude Code plugin for Ruby on Rails development — orchestration, 
 
 ## Skills
 
-| Skill                            | Description                                                                      |
-|----------------------------------|----------------------------------------------------------------------------------|
-| `fullstack-rails-cto`            | Orchestrator — session init, skill routing, QA gates, completion checklist       |
-| `fullstack-rails-engineer`       | Core Rails development guidance and patterns                                     |
-| `fullstack-rails-api`            | RESTful JSON API conventions and OpenAPI standards                               |
-| `fullstack-rails-erb`            | ERB view and partial conventions                                                 |
-| `fullstack-rails-minitest`       | Minitest with Spec DSL, parallel tests, SimpleCov coverage                       |
-| `fullstack-rails-qa`             | Quality assurance — linting, testing, and code review                            |
-| `fullstack-rails-restful`        | RESTful controller and routing patterns                                          |
-| `fullstack-rails-stimulus`       | Stimulus controller conventions and Turbo integration                            |
-| `fullstack-rails-tailwind`       | Tailwind CSS best practices, design system, dark mode, responsive, accessibility |
-| `fullstack-rails-upgrade`        | Rails version upgrade guidance                                                   |
-| `fullstack-rails-view-component` | ViewComponent patterns                                                           |
+| Skill                            | Description                                                                         |
+|----------------------------------|-------------------------------------------------------------------------------------|
+| `fullstack-rails-cto`            | Orchestrator — session init, skill routing, QA gates, completion checklist           |
+| `fullstack-rails-engineer`       | Core Rails development guidance and patterns                                        |
+| `fullstack-rails-api`            | RESTful JSON API conventions and OpenAPI standards                                  |
+| `fullstack-rails-erb`            | ERB view and partial conventions                                                    |
+| `fullstack-rails-minitest`       | Minitest with Spec DSL, parallel tests, SimpleCov coverage                          |
+| `fullstack-rails-qa`             | Quality assurance — linting, testing, and code review                               |
+| `fullstack-rails-restful`        | RESTful controller and routing patterns                                             |
+| `fullstack-rails-stimulus`       | Stimulus controller conventions and Turbo integration                               |
+| `fullstack-rails-tailwind`       | Tailwind CSS best practices, design system, dark mode, responsive, accessibility    |
+| `fullstack-rails-upgrade`        | Rails version upgrade guidance                                                      |
+| `fullstack-rails-view-component` | ViewComponent patterns                                                              |
 | `fullstack-rails-security`       | Security scanning — Brakeman + bundler-audit for code and dependency vulnerabilities |
-| `fullstack-rails-static-analysis`| Static analysis — Reek (code smells), Flog (complexity), Flay (duplication)      |
-| `fullstack-rails-commit`         | Stage and commit all changes with human-friendly messages                        |
-| `fullstack-rails-pull-request`   | Create PRs targeting staging                                                     |
-| `fullstack-rails-production-pr`  | Create production PRs (staging to main)                                          |
+| `fullstack-rails-static-analysis`| Static analysis — Reek (code smells), Flog (complexity), Flay (duplication)         |
+| `fullstack-rails-commit`         | Stage and commit all changes with human-friendly messages                           |
+| `fullstack-rails-pull-request`   | Create PRs targeting staging                                                        |
+| `fullstack-rails-production-pr`  | Create production PRs (staging to main)                                             |
 
 ### Marketplace Dependencies
 
@@ -213,7 +213,75 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-commit/
 │   ├── fullstack-rails-pull-request/
 │   └── fullstack-rails-production-pr/
+├── cops/                     # Custom RuboCop cops (copied to projects)
+│   ├── minitest.rb           # Loader
+│   └── minitest/
+│       ├── no_inline_subject.rb
+│       └── subject_required.rb
 ├── claude/
 │   └── CLAUDE.md             # Project-level config (for this repo only)
 └── README.md
+```
+
+## Custom RuboCop Cops
+
+This plugin ships two custom cops that enforce Minitest `subject` conventions. The QA skill automatically copies them into your Rails project's `lib/cops/` directory and adds the require to `.rubocop.yml`.
+
+### `Minitest/NoInlineSubject`
+
+Detects `subject = ...` assigned as a local variable inside `it` blocks. The correct pattern is to define `subject { }` once at the class level and use `let(:attributes)` with nested `describe` blocks for variations.
+
+```ruby
+# Bad — triggers offense
+it "returns formatted price" do
+  subject = Fabricate.build(:plan, amount: 1200)
+  assert_equal "$12.00 / month", subject.price_summary
+end
+
+# Good — no offense
+let(:attributes) { { amount: 1200, interval: "month" } }
+subject { Fabricate.build(:plan, **attributes) }
+
+it "returns formatted price" do
+  assert_equal "$12.00 / month", subject.price_summary
+end
+```
+
+### `Minitest/SubjectRequired`
+
+Detects test classes inheriting from `ActiveSupport::TestCase` or `ViewComponent::TestCase` that don't define a `subject { }` block.
+
+```ruby
+# Bad — triggers offense
+class BookmarkTest < ActiveSupport::TestCase
+  describe "#host" do
+    it "returns the host" do
+      bookmark = Fabricate.build(:bookmark)
+      assert_equal "example.com", bookmark.host
+    end
+  end
+end
+
+# Good — no offense
+class BookmarkTest < ActiveSupport::TestCase
+  subject { Fabricate.build(:bookmark, url: "https://example.com") }
+
+  describe "#host" do
+    it "returns the host" do
+      assert_equal "example.com", subject.host
+    end
+  end
+end
+```
+
+### Manual installation
+
+If you prefer to install the cops manually instead of relying on the QA skill:
+
+1. Copy `cops/minitest.rb` and `cops/minitest/` to your project's `lib/cops/`
+2. Add to your `.rubocop.yml`:
+
+```yaml
+require:
+  - ./lib/cops/minitest
 ```

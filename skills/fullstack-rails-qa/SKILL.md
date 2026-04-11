@@ -53,7 +53,7 @@ For each changed `.rb` file (excluding test files themselves), check that a corr
 
 If the test file does not exist, create it before proceeding. Invoke `/fullstack-rails-minitest` for the correct test structure and DSL. New or changed code without tests is not shippable.
 
-**Every test file MUST define a `subject` block.** If a test file exists but has no `subject`, add one before running the tests. `subject` declares the primary object under test — without it, the test structure is incomplete. See the code review section below for correct vs wrong examples.
+**Every test file MUST define a `subject` block exactly once at the top of the class.** If a test file exists but has no `subject`, add one before running the tests. If a test file reassigns `subject` inline inside `it` or `describe` blocks, refactor it to use a `let(:attributes)` pattern with nested `describe` overrides instead. See the code review section below for correct vs wrong examples.
 
 ### 4. Run static analysis (Reek, Flog, Flay)
 
@@ -61,7 +61,34 @@ Invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans 
 
 Do not proceed to RuboCop until static analysis passes or the user acknowledges remaining issues.
 
-### 5. Run RuboCop with autocorrect
+### 5. Install custom cops (if missing)
+
+Before running RuboCop, ensure the project has the custom Minitest cops installed. These enforce the `subject` pattern in test files.
+
+Check if the cops exist:
+
+```bash
+ls lib/cops/minitest/no_inline_subject.rb lib/cops/minitest/subject_required.rb 2>/dev/null
+```
+
+If either file is missing, create the full set:
+
+1. Create `lib/cops/minitest.rb` — the loader that requires both cops.
+2. Create `lib/cops/minitest/no_inline_subject.rb` — detects `subject = ...` inside `it` blocks.
+3. Create `lib/cops/minitest/subject_required.rb` — detects test classes without a `subject` block.
+
+Copy these files from the plugin's `cops/` directory. The source files are in the `cops/` directory at the plugin root (the same repo that contains this skill).
+
+Then verify `.rubocop.yml` includes:
+
+```yaml
+require:
+  - ./lib/cops/minitest
+```
+
+If the `require` key exists but doesn't include `./lib/cops/minitest`, append it. If `require` doesn't exist, add it at the top of the file.
+
+### 6. Run RuboCop with autocorrect
 
 ```bash
 bundle exec rubocop -A path/to/changed_file.rb
@@ -81,7 +108,7 @@ Review the output for:
 
 If RuboCop reports remaining offenses after `-A`, fix them manually and re-run.
 
-### 6. Run tests
+### 7. Run tests
 
 After RuboCop passes, run the tests for the files you changed in parallel with coverage enabled:
 
@@ -95,7 +122,7 @@ If you changed a model, run its model test. If you changed a controller, run its
 COVERAGE=1 PARALLEL=1 bundle exec rails test
 ```
 
-### 7. Check code coverage
+### 8. Check code coverage
 
 After tests pass, check for `coverage/coverage.json` in the project root. If it exists, read it to verify your tests adequately cover the changed code.
 
@@ -110,7 +137,7 @@ After tests pass, check for `coverage/coverage.json` in the project root. If it 
 
 If `coverage/coverage.json` does not exist, skip this step.
 
-### 8. Code review
+### 9. Code review
 
 After linting and tests pass, review the changed code against these quality checks. This is where you catch the things that automated tools miss.
 
@@ -128,10 +155,20 @@ current_user.bookmarks.where(active: true).order(created_at: :desc)
 
 #### Test structure: `subject` is required
 
-Every test class must define a `subject` block that returns the primary object under test. If reviewing a test file and `subject` is missing, add it. The `subject` makes it immediately clear what the test is exercising and prevents re-instantiating the primary object inline across `it` blocks.
+Every test class must define a `subject` block **exactly once at the top of the class**. Do not reassign `subject` inside `it` or `describe` blocks. When different tests need different attributes, use a `let(:attributes)` block that `subject` references, and override it in nested `describe` blocks.
 
 ```ruby
-# WRONG — no subject, object created inline
+# WRONG — subject reassigned inline in each test
+class PlanDecoratorTest < ActiveSupport::TestCase
+  describe "#price_summary" do
+    it "returns formatted price" do
+      subject = Fabricate.build(:plan, amount: 1200, interval: "month")
+      assert_equal "$12.00 / month", subject.price_summary
+    end
+  end
+end
+
+# ALSO WRONG — no subject, local variable instead
 class BookmarkTest < ActiveSupport::TestCase
   describe "#host" do
     it "returns the host" do
@@ -141,13 +178,19 @@ class BookmarkTest < ActiveSupport::TestCase
   end
 end
 
-# RIGHT — subject declares the primary object
-class BookmarkTest < ActiveSupport::TestCase
-  subject { Fabricate.build(:bookmark, url: "https://example.com/path") }
+# RIGHT — subject declared once, variations via let(:attributes)
+class PlanDecoratorTest < ActiveSupport::TestCase
+  let(:attributes) { {} }
 
-  describe "#host" do
-    it "returns the host" do
-      assert_equal "example.com", subject.host
+  subject { Fabricate.build(:plan, **attributes) }
+
+  describe "#price_summary" do
+    describe "with monthly interval" do
+      let(:attributes) { { amount: 1200, interval: "month" } }
+
+      it "returns formatted price" do
+        assert_equal "$12.00 / month", subject.price_summary
+      end
     end
   end
 end
