@@ -17,7 +17,7 @@ Opinionated Claude Code plugin for Ruby on Rails development — orchestration, 
 | `fullstack-rails-tailwind`       | Tailwind CSS best practices, design system, dark mode, responsive, accessibility |
 | `fullstack-rails-upgrade`        | Rails version upgrade guidance                                                   |
 | `fullstack-rails-view-component` | ViewComponent patterns                                                           |
-| `fullstack-rails-security`       | Brakeman security scanning — fix high/medium warnings on changed files           |
+| `fullstack-rails-security`       | Security scanning — Brakeman + bundler-audit for code and dependency vulnerabilities |
 | `fullstack-rails-static-analysis`| Static analysis — Reek (code smells), Flog (complexity), Flay (duplication)      |
 | `fullstack-rails-commit`         | Stage and commit all changes with human-friendly messages                        |
 | `fullstack-rails-pull-request`   | Create PRs targeting staging                                                     |
@@ -61,6 +61,7 @@ gem "rubocop-minitest", require: false
 
 # Security scanning (used by fullstack-rails-security)
 gem "brakeman", require: false
+gem "bundler-audit", require: false
 
 # Static analysis (used by fullstack-rails-static-analysis)
 gem "reek", require: false

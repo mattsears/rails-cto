@@ -8,6 +8,7 @@
       "Bash(bundle exec reek:*)",
       "Bash(bundle exec flog:*)",
       "Bash(bundle exec flay:*)",
+      "Bash(bundle-audit:*)",
       "Bash(bundle exec herb:*)",
       "Bash(rails test:*)",
       "Bash(bundle exec rails test:*)",

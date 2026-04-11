@@ -1,16 +1,17 @@
 ---
 name: fullstack-rails-security
 description: >
-  Run Brakeman security scans on changed files and fix high/medium confidence warnings.
-  Use when any .rb or .html.erb file is created or modified. Also use when the user
-  mentions "security", "brakeman", "vulnerability", "XSS", "SQL injection",
+  Run Brakeman and bundler-audit security scans on changed files and fix high/medium
+  confidence warnings. Use when any .rb or .html.erb file is created or modified.
+  Also use when the user mentions "security", "brakeman", "bundle-audit", "audit",
+  "vulnerability", "XSS", "SQL injection", "CVE", "advisory",
   "mass assignment", "CSRF", or asks about secure coding practices.
   Proactively invoke this skill after code changes, even if the user doesn't ask.
 ---
 
 # Security Scanning in This Project
 
-Every `.rb` and `.html.erb` change is scanned with [Brakeman](https://github.com/presidentbeef/brakeman) before the work is considered done. High and medium confidence warnings must be fixed. This skill runs **after** code changes are made — it is a post-change quality gate, not a write blocker.
+Every `.rb` and `.html.erb` change is scanned with [Brakeman](https://github.com/presidentbeef/brakeman) and [bundler-audit](https://github.com/rubysec/bundler-audit) before the work is considered done. Brakeman catches code-level vulnerabilities; bundler-audit catches known CVEs in your gem dependencies. High and medium confidence warnings must be fixed. This skill runs **after** code changes are made — it is a post-change quality gate, not a write blocker.
 
 ## Pre-flight: Check Brakeman Setup (MANDATORY)
 
@@ -177,12 +178,113 @@ bundle exec brakeman --only-files file1.rb,file2.rb -f json -q --no-pager
 
 ---
 
+## Dependency Audit: bundler-audit
+
+After the Brakeman scan, run bundler-audit to check for known vulnerabilities in gem dependencies.
+
+### 1. Check if bundler-audit is available
+
+```bash
+bundle-audit --version 2>/dev/null
+```
+
+If the command fails, inform the user:
+
+> "This project doesn't have the `bundler-audit` gem installed. Add it to your Gemfile:
+>
+> ```ruby
+> group :development do
+>   gem "bundler-audit", require: false
+> end
+> ```
+>
+> Then run `bundle install`."
+
+If bundler-audit is not available, skip the audit steps below and continue. Do not block on installation. But if bundler-audit IS available, you MUST run it — do not skip.
+
+### 2. Update the advisory database and run the audit
+
+Always update the advisory database before scanning to catch the latest CVEs:
+
+```bash
+bundle-audit check --update
+```
+
+This updates the ruby-advisory-db and immediately runs the check.
+
+### 3. Install `.bundler-audit.yml` if missing
+
+Check for a config file:
+
+```bash
+ls .bundler-audit.yml 2>/dev/null
+```
+
+If the file does not exist, create it:
+
+```yaml
+---
+# bundler-audit configuration
+# Add advisory IDs here to ignore known false positives
+ignore: []
+```
+
+### Reading bundler-audit output
+
+bundler-audit reports vulnerable gems in this format:
+
+```
+Name: actionpack
+Version: 7.0.4
+Advisory: CVE-2023-22796
+Criticality: High
+URL: https://nvd.nist.gov/vuln/detail/CVE-2023-22796
+Title: ReDoS vulnerability in Active Support
+Solution: upgrade to >= 7.0.4.1
+```
+
+Key fields:
+- **Name** and **Version** — the vulnerable gem and its current version
+- **Advisory** — CVE or OSVDB identifier
+- **Criticality** — High, Medium, or Low
+- **Solution** — the version to upgrade to
+
+### Fixing vulnerabilities
+
+#### High and Medium criticality: fix immediately
+
+For each high or medium advisory:
+
+1. Check the **Solution** field for the required version
+2. Update the gem in the `Gemfile` if it has a pinned version
+3. Run `bundle update <gem_name>` to pull the patched version
+4. Re-run `bundle-audit check` to verify the vulnerability is resolved
+
+If a gem cannot be updated (dependency conflicts, breaking changes), report it to the user with the CVE, current version, and required version so they can decide how to proceed.
+
+#### Low criticality: mention but do not fix
+
+For low criticality advisories, list them as informational:
+
+> "bundler-audit also reported N low-criticality advisories:
+> - [gem_name] (version) — CVE-XXXX-XXXX: title
+>
+> These are informational only — review them if you'd like, but no action is required."
+
+Do not block completion on low criticality advisories.
+
+#### Ignored advisories
+
+If an advisory ID is listed in `.bundler-audit.yml` under `ignore`, bundler-audit skips it automatically. Do not mention ignored advisories in the output.
+
+---
+
 ## Integration with QA
 
 This skill runs alongside `/fullstack-rails-qa`, not as a replacement. The typical end-of-task flow is:
 
 1. `/fullstack-rails-qa` — RuboCop linting + test suite
-2. `/fullstack-rails-security` — Brakeman security scan
+2. `/fullstack-rails-security` — Brakeman scan + bundler-audit
 3. Fix any issues from either skill
 4. Task complete
 
