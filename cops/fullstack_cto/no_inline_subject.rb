@@ -2,7 +2,7 @@
 
 module RuboCop
   module Cop
-    module Minitest
+    module FullstackCto
       # Detects `subject` being assigned as a local variable inside `it` blocks.
       #
       # The correct pattern is to define `subject { }` once at the class level

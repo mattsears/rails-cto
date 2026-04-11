@@ -214,8 +214,8 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-pull-request/
 │   └── fullstack-rails-production-pr/
 ├── cops/                     # Custom RuboCop cops (copied to projects)
-│   ├── minitest.rb           # Loader
-│   └── minitest/
+│   ├── fullstack_cto.rb      # Loader
+│   └── fullstack_cto/
 │       ├── no_inline_subject.rb
 │       └── subject_required.rb
 ├── claude/
@@ -225,9 +225,9 @@ fullstack-rails-cto/
 
 ## Custom RuboCop Cops
 
-This plugin ships two custom cops that enforce Minitest `subject` conventions. The QA skill automatically copies them into your Rails project's `lib/cops/` directory and adds the require to `.rubocop.yml`.
+This plugin ships custom RuboCop cops under the `FullstackCto` department. The QA skill automatically copies them into your Rails project's `lib/cops/` directory and adds the require to `.rubocop.yml`. Offenses appear as `FullstackCto/NoInlineSubject`, `FullstackCto/SubjectRequired`, etc.
 
-### `Minitest/NoInlineSubject`
+### `FullstackCto/NoInlineSubject`
 
 Detects `subject = ...` assigned as a local variable inside `it` blocks. The correct pattern is to define `subject { }` once at the class level and use `let(:attributes)` with nested `describe` blocks for variations.
 
@@ -247,7 +247,7 @@ it "returns formatted price" do
 end
 ```
 
-### `Minitest/SubjectRequired`
+### `FullstackCto/SubjectRequired`
 
 Detects test classes inheriting from `ActiveSupport::TestCase` or `ViewComponent::TestCase` that don't define a `subject { }` block.
 
@@ -278,10 +278,20 @@ end
 
 If you prefer to install the cops manually instead of relying on the QA skill:
 
-1. Copy `cops/minitest.rb` and `cops/minitest/` to your project's `lib/cops/`
+1. Copy `cops/fullstack_cto.rb` and `cops/fullstack_cto/` to your project's `lib/cops/`
 2. Add to your `.rubocop.yml`:
 
 ```yaml
 require:
-  - ./lib/cops/minitest
+  - ./lib/cops/fullstack_cto
+
+FullstackCto/NoInlineSubject:
+  Enabled: true
+  Include:
+    - 'test/**/*_test.rb'
+
+FullstackCto/SubjectRequired:
+  Enabled: true
+  Include:
+    - 'test/**/*_test.rb'
 ```

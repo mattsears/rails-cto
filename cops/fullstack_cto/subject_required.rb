@@ -2,7 +2,7 @@
 
 module RuboCop
   module Cop
-    module Minitest
+    module FullstackCto
       # Ensures every test class defines a `subject { }` block at the class level.
       #
       # A test file without `subject` is incomplete. The `subject` block declares

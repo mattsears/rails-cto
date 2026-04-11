@@ -68,25 +68,35 @@ Before running RuboCop, ensure the project has the custom Minitest cops installe
 Check if the cops exist:
 
 ```bash
-ls lib/cops/minitest/no_inline_subject.rb lib/cops/minitest/subject_required.rb 2>/dev/null
+ls lib/cops/fullstack_cto/no_inline_subject.rb lib/cops/fullstack_cto/subject_required.rb 2>/dev/null
 ```
 
 If either file is missing, create the full set:
 
-1. Create `lib/cops/minitest.rb` — the loader that requires both cops.
-2. Create `lib/cops/minitest/no_inline_subject.rb` — detects `subject = ...` inside `it` blocks.
-3. Create `lib/cops/minitest/subject_required.rb` — detects test classes without a `subject` block.
+1. Create `lib/cops/fullstack_cto.rb` — the loader that requires both cops.
+2. Create `lib/cops/fullstack_cto/no_inline_subject.rb` — detects `subject = ...` inside `it` blocks.
+3. Create `lib/cops/fullstack_cto/subject_required.rb` — detects test classes without a `subject` block.
 
 Copy these files from the plugin's `cops/` directory. The source files are in the `cops/` directory at the plugin root (the same repo that contains this skill).
 
-Then verify `.rubocop.yml` includes:
+Then verify `.rubocop.yml` includes the require and scoping config:
 
 ```yaml
 require:
-  - ./lib/cops/minitest
+  - ./lib/cops/fullstack_cto
+
+FullstackCto/NoInlineSubject:
+  Enabled: true
+  Include:
+    - 'test/**/*_test.rb'
+
+FullstackCto/SubjectRequired:
+  Enabled: true
+  Include:
+    - 'test/**/*_test.rb'
 ```
 
-If the `require` key exists but doesn't include `./lib/cops/minitest`, append it. If `require` doesn't exist, add it at the top of the file.
+If the `require` key exists but doesn't include `./lib/cops/fullstack_cto`, append it. If `require` doesn't exist, add it at the top of the file. If the `FullstackCto/` cop config sections don't exist, add them.
 
 ### 6. Run RuboCop with autocorrect
 
