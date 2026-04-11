@@ -213,85 +213,8 @@ fullstack-rails-cto/
 │   ├── fullstack-rails-commit/
 │   ├── fullstack-rails-pull-request/
 │   └── fullstack-rails-production-pr/
-├── cops/                     # Custom RuboCop cops (copied to projects)
-│   ├── fullstack_cto.rb      # Loader
-│   └── fullstack_cto/
-│       ├── no_inline_subject.rb
-│       └── subject_required.rb
 ├── claude/
 │   └── CLAUDE.md             # Project-level config (for this repo only)
 └── README.md
 ```
 
-## Custom RuboCop Cops
-
-This plugin ships custom RuboCop cops under the `FullstackCto` department. The QA skill automatically copies them into your Rails project's `lib/cops/` directory and adds the require to `.rubocop.yml`. Offenses appear as `FullstackCto/NoInlineSubject`, `FullstackCto/SubjectRequired`, etc.
-
-### `FullstackCto/NoInlineSubject`
-
-Detects `subject = ...` assigned as a local variable inside `it` blocks. The correct pattern is to define `subject { }` once at the class level and use `let(:attributes)` with nested `describe` blocks for variations.
-
-```ruby
-# Bad — triggers offense
-it "returns formatted price" do
-  subject = Fabricate.build(:plan, amount: 1200)
-  assert_equal "$12.00 / month", subject.price_summary
-end
-
-# Good — no offense
-let(:attributes) { { amount: 1200, interval: "month" } }
-subject { Fabricate.build(:plan, **attributes) }
-
-it "returns formatted price" do
-  assert_equal "$12.00 / month", subject.price_summary
-end
-```
-
-### `FullstackCto/SubjectRequired`
-
-Detects test classes inheriting from `ActiveSupport::TestCase` or `ViewComponent::TestCase` that don't define a `subject { }` block.
-
-```ruby
-# Bad — triggers offense
-class BookmarkTest < ActiveSupport::TestCase
-  describe "#host" do
-    it "returns the host" do
-      bookmark = Fabricate.build(:bookmark)
-      assert_equal "example.com", bookmark.host
-    end
-  end
-end
-
-# Good — no offense
-class BookmarkTest < ActiveSupport::TestCase
-  subject { Fabricate.build(:bookmark, url: "https://example.com") }
-
-  describe "#host" do
-    it "returns the host" do
-      assert_equal "example.com", subject.host
-    end
-  end
-end
-```
-
-### Manual installation
-
-If you prefer to install the cops manually instead of relying on the QA skill:
-
-1. Copy `cops/fullstack_cto.rb` and `cops/fullstack_cto/` to your project's `lib/cops/`
-2. Add to your `.rubocop.yml`:
-
-```yaml
-require:
-  - ./lib/cops/fullstack_cto
-
-FullstackCto/NoInlineSubject:
-  Enabled: true
-  Include:
-    - 'test/**/*_test.rb'
-
-FullstackCto/SubjectRequired:
-  Enabled: true
-  Include:
-    - 'test/**/*_test.rb'
-```

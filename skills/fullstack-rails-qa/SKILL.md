@@ -61,44 +61,7 @@ Invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans 
 
 Do not proceed to RuboCop until static analysis passes or the user acknowledges remaining issues.
 
-### 5. Install custom cops (if missing)
-
-Before running RuboCop, ensure the project has the custom Minitest cops installed. These enforce the `subject` pattern in test files.
-
-Check if the cops exist:
-
-```bash
-ls lib/cops/fullstack_cto/no_inline_subject.rb lib/cops/fullstack_cto/subject_required.rb 2>/dev/null
-```
-
-If either file is missing, create the full set:
-
-1. Create `lib/cops/fullstack_cto.rb` — the loader that requires both cops.
-2. Create `lib/cops/fullstack_cto/no_inline_subject.rb` — detects `subject = ...` inside `it` blocks.
-3. Create `lib/cops/fullstack_cto/subject_required.rb` — detects test classes without a `subject` block.
-
-Copy these files from the plugin's `cops/` directory. The source files are in the `cops/` directory at the plugin root (the same repo that contains this skill).
-
-Then verify `.rubocop.yml` includes the require and scoping config:
-
-```yaml
-require:
-  - ./lib/cops/fullstack_cto
-
-FullstackCto/NoInlineSubject:
-  Enabled: true
-  Include:
-    - 'test/**/*_test.rb'
-
-FullstackCto/SubjectRequired:
-  Enabled: true
-  Include:
-    - 'test/**/*_test.rb'
-```
-
-If the `require` key exists but doesn't include `./lib/cops/fullstack_cto`, append it. If `require` doesn't exist, add it at the top of the file. If the `FullstackCto/` cop config sections don't exist, add them.
-
-### 6. Run RuboCop with autocorrect
+### 5. Run RuboCop with autocorrect
 
 ```bash
 bundle exec rubocop -A path/to/changed_file.rb
@@ -118,7 +81,7 @@ Review the output for:
 
 If RuboCop reports remaining offenses after `-A`, fix them manually and re-run.
 
-### 7. Run tests
+### 6. Run tests
 
 After RuboCop passes, run the tests for the files you changed in parallel with coverage enabled:
 
@@ -132,7 +95,7 @@ If you changed a model, run its model test. If you changed a controller, run its
 COVERAGE=1 PARALLEL=1 bundle exec rails test
 ```
 
-### 8. Check code coverage
+### 7. Check code coverage
 
 After tests pass, check for `coverage/coverage.json` in the project root. If it exists, read it to verify your tests adequately cover the changed code.
 
@@ -147,7 +110,7 @@ After tests pass, check for `coverage/coverage.json` in the project root. If it 
 
 If `coverage/coverage.json` does not exist, skip this step.
 
-### 9. Code review
+### 8. Code review
 
 After linting and tests pass, review the changed code against these quality checks. This is where you catch the things that automated tools miss.
 

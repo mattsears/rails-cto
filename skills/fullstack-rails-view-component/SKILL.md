@@ -260,7 +260,17 @@ Access at: `http://localhost:3000/lookbook`
 
 ## Testing Components
 
+Component tests extend `ViewComponent::TestCase` and use `render_inline` to render the component in isolation. Test the rendered output — not internal methods or private behavior.
+
+See the [official testing guide](https://github.com/ViewComponent/view_component/blob/main/docs/guide/testing.md) for the full API reference.
+
+### Basic component test
+
+Every component test must define `subject` and use Minitest::Spec DSL. The `subject` should call `render_inline` to produce a `Nokogiri::HTML::DocumentFragment` that you assert against.
+
 ```ruby
+# frozen_string_literal: true
+
 require "test_helper"
 
 module Elements
@@ -268,7 +278,7 @@ module Elements
     subject do
       render_inline(Elements::ButtonComponent.new) do |component|
         component.with_clickable { "Click me!" }
-        component.with_replaceable { "ButtonComponent me!" }
+        component.with_replaceable { "Replace me!" }
       end
     end
 
@@ -286,6 +296,144 @@ module Elements
   end
 end
 ```
+
+### Assertions
+
+Use Capybara matchers (available through `ViewComponent::TestCase`) and Nokogiri queries:
+
+```ruby
+# Capybara matchers — preferred for readability
+assert_selector "h1", text: "Title"
+assert_text "Hello, World!"
+assert_link "Edit", href: "/edit"
+assert_selector "input[type='email']"
+assert_no_selector ".error-message"
+
+# Nokogiri queries — for fine-grained HTML inspection
+assert_includes subject.css("a").to_html, "Click me!"
+assert_equal 3, subject.css("li").count
+```
+
+### Testing slots
+
+Use the block form of `render_inline` to populate slots:
+
+```ruby
+class CardComponentTest < ViewComponent::TestCase
+  subject do
+    render_inline(CardComponent.new) do |card|
+      card.with_header { "Card Title" }
+      card.with_footer { "Card Footer" }
+    end
+  end
+
+  before { subject }
+
+  it "renders the header slot" do
+    assert_selector "h3", text: "Card Title"
+  end
+
+  it "renders the footer slot" do
+    assert_selector "footer", text: "Card Footer"
+  end
+end
+```
+
+### Testing with variations
+
+When a component accepts different options, use `let(:attributes)` to vary the input across `describe` blocks — the same pattern used in model tests:
+
+```ruby
+class BadgeComponentTest < ViewComponent::TestCase
+  let(:attributes) { {} }
+
+  subject { render_inline(BadgeComponent.new(text: "Status", **attributes)) }
+
+  before { subject }
+
+  describe "with primary variant" do
+    let(:attributes) { { variant: :primary } }
+
+    it "applies primary classes" do
+      assert_selector ".bg-blue-100.text-blue-800", text: "Status"
+    end
+  end
+
+  describe "with danger variant" do
+    let(:attributes) { { variant: :danger } }
+
+    it "applies danger classes" do
+      assert_selector ".bg-red-100.text-red-800", text: "Status"
+    end
+  end
+end
+```
+
+### Testing with request context
+
+When a component uses URL helpers or depends on request context, use the built-in context helpers:
+
+```ruby
+class NavComponentTest < ViewComponent::TestCase
+  subject { render_inline(NavComponent.new) }
+
+  # Set the controller for URL helper resolution
+  describe "with dashboard controller context" do
+    before do
+      with_controller_class DashboardController
+      subject
+    end
+
+    it "renders the nav links" do
+      assert_link "Home", href: "/"
+    end
+  end
+
+  # Set the request URL for path-dependent rendering
+  describe "on the settings page" do
+    before do
+      with_request_url "/settings"
+      subject
+    end
+
+    it "highlights the settings link" do
+      assert_selector "a.active", text: "Settings"
+    end
+  end
+end
+```
+
+### Testing previews
+
+Use `render_preview` to test that Lookbook previews render without errors:
+
+```ruby
+class ButtonComponentTest < ViewComponent::TestCase
+  it "renders the default preview" do
+    render_preview(:default)
+    assert_selector "button"
+  end
+
+  it "renders the danger preview" do
+    render_preview(:danger)
+    assert_selector "button.btn-danger"
+  end
+end
+```
+
+### File organization
+
+```
+test/
+  components/
+    elements/
+      button_component_test.rb
+    forms/
+      combo_select_test.rb
+    card_component_test.rb
+```
+
+Mirror the `app/components/` directory structure. Namespace test classes to match the component module.
 
 ## Tech Stack
 
