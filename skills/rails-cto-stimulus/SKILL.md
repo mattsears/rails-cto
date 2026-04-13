@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-stimulus
+name: rails-cto-stimulus
 description: >
   How to write Stimulus controllers for this Rails 8 / Hotwire project.
   Use when creating, modifying, or debugging Stimulus controllers,

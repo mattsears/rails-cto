@@ -4,7 +4,7 @@ set -euo pipefail
 
 input=$(cat)
 
-for skill in fullstack-rails-minitest fullstack-rails-erb fullstack-rails-tailwind fullstack-rails-stimulus fullstack-rails-restful fullstack-rails-view-component fullstack-rails-qa fullstack-rails-security fullstack-rails-static-analysis; do
+for skill in rails-cto-minitest rails-cto-erb rails-cto-tailwind rails-cto-stimulus rails-cto-restful rails-cto-view-component rails-cto-qa rails-cto-security rails-cto-static-analysis; do
   if echo "$input" | grep -q "$skill"; then
     touch "/tmp/claude-${skill}-loaded-${PPID}"
   fi

@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-pull-request
+name: rails-cto-pull-request
 description: Create a pull request targeting the staging branch using the gh CLI. Use this skill whenever the user asks to create a PR, open a pull request, submit for review, or says things like "create a PR", "open a pull request", "submit this for review", "PR this", or "send this to staging". Also triggers for "/pull-request" or "/pr". Do NOT use for merging PRs, reviewing PRs, or creating production releases.
 ---
 
@@ -29,7 +29,7 @@ If a PR already exists for this branch targeting `staging`, warn the user with t
 
 ### 2. Commit outstanding changes
 
-If there are any uncommitted or unstaged changes, commit them first using the `fullstack-commit` skill before continuing. This ensures everything is captured in the PR.
+If there are any uncommitted or unstaged changes, commit them first using the `rails-cto-commit` skill before continuing. This ensures everything is captured in the PR.
 
 ### 3. Sync with staging
 

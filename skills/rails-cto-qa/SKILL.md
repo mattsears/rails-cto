@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-qa
+name: rails-cto-qa
 description: >
   Quality assurance for Ruby on Rails projects — linting, testing, and code review.
   Use after creating or modifying any Ruby file — controllers, models, commands,
@@ -51,13 +51,13 @@ For each changed `.rb` file (excluding test files themselves), check that a corr
 - `app/jobs/sync_bookmark_job.rb` → `test/jobs/sync_bookmark_job_test.rb`
 - `app/components/forms/combo_select.rb` → `test/components/forms/combo_select_test.rb`
 
-If the test file does not exist, create it before proceeding. Invoke `/fullstack-rails-minitest` for the correct test structure and DSL. New or changed code without tests is not shippable.
+If the test file does not exist, create it before proceeding. Invoke `/rails-cto-minitest` for the correct test structure and DSL. New or changed code without tests is not shippable.
 
 **Every test file MUST define a `subject` block exactly once at the top of the class.** If a test file exists but has no `subject`, add one before running the tests. If a test file reassigns `subject` inline inside `it` or `describe` blocks, refactor it to use a `let(:attributes)` pattern with nested `describe` overrides instead. See the code review section below for correct vs wrong examples.
 
 ### 4. Run static analysis (Reek, Flog, Flay)
 
-Invoke `/fullstack-rails-static-analysis` on the changed Ruby files. This scans for code smells, excessive complexity, and structural duplication — and auto-refactors when issues are found.
+Invoke `/rails-cto-static-analysis` on the changed Ruby files. This scans for code smells, excessive complexity, and structural duplication — and auto-refactors when issues are found.
 
 Do not proceed to RuboCop until static analysis passes or the user acknowledges remaining issues.
 
@@ -342,4 +342,4 @@ Rails.logger.error "Failed to update embedding for tag #{tag_id}: " \
 | Check without fixing | `bundle exec rubocop path/to/file.rb` |
 | Run related tests | `PARALLEL=1 COVERAGE=1 bundle exec rails test test/path/to/test.rb` |
 | Run full test suite | `PARALLEL=1 COVERAGE=1 bundle exec rails test` |
-| Static analysis | `/fullstack-rails-static-analysis` (invoked automatically after RuboCop) |
+| Static analysis | `/rails-cto-static-analysis` (invoked automatically after RuboCop) |

@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-cto
+name: rails-cto
 description: Orchestrator skill for Ruby on Rails projects. Initializes sessions, routes to specialized skills, enforces mandatory QA gates, and runs the completion checklist. Invoke at the start of every Rails session.
 model: opus
 ---
@@ -8,7 +8,7 @@ You are the CTO orchestrator for Ruby on Rails projects. Your job is to ensure e
 
 ## Session Initialization
 
-At the start of every Rails session, invoke `/fullstack-rails-engineer` to load core Rails philosophy, patterns, and architecture context.
+At the start of every Rails session, invoke `/rails-cto-engineer` to load core Rails philosophy, patterns, and architecture context.
 
 ## Skill Routing
 
@@ -16,19 +16,19 @@ Invoke these skills automatically when the task matches — do not wait for the 
 
 | Skill | When to invoke |
 |-------|---------------|
-| `fullstack-rails-engineer` | Session start; any Rails code question; architecture decisions |
-| `fullstack-rails-api` | Creating or modifying anything under `Api::` namespace, serializers, API routes, or API tests |
-| `fullstack-rails-restful` | Creating or modifying controllers, adding routes, or restructuring actions |
-| `fullstack-rails-erb` | Creating or modifying any `.html.erb` view, partial, or layout |
-| `fullstack-rails-tailwind` | Adding or modifying Tailwind classes, `.css` files, working on UI styling, or touching views with visual changes |
-| `fullstack-rails-stimulus` | Creating or modifying Stimulus controllers or adding `data-*` attributes |
-| `fullstack-rails-minitest` | Writing or modifying tests, OR creating/modifying any model, controller, service, job, or component that needs test coverage |
-| `fullstack-rails-qa` | After modifying any `.rb` file — linting, tests, and code review |
-| `fullstack-rails-security` | After modifying any `.rb` or `.html.erb` file — Brakeman security scan |
-| `fullstack-rails-view-component` | Creating reusable UI components with ViewComponent |
-| `fullstack-rails-upgrade` | Upgrading Rails versions |
+| `rails-cto-engineer` | Session start; any Rails code question; architecture decisions |
+| `rails-cto-api` | Creating or modifying anything under `Api::` namespace, serializers, API routes, or API tests |
+| `rails-cto-restful` | Creating or modifying controllers, adding routes, or restructuring actions |
+| `rails-cto-erb` | Creating or modifying any `.html.erb` view, partial, or layout |
+| `rails-cto-tailwind` | Adding or modifying Tailwind classes, `.css` files, working on UI styling, or touching views with visual changes |
+| `rails-cto-stimulus` | Creating or modifying Stimulus controllers or adding `data-*` attributes |
+| `rails-cto-minitest` | Writing or modifying tests, OR creating/modifying any model, controller, service, job, or component that needs test coverage |
+| `rails-cto-qa` | After modifying any `.rb` file — linting, tests, and code review |
+| `rails-cto-security` | After modifying any `.rb` or `.html.erb` file — Brakeman security scan |
+| `rails-cto-view-component` | Creating reusable UI components with ViewComponent |
+| `rails-cto-upgrade` | Upgrading Rails versions |
 
-Multiple skills can apply to a single task. For example, adding a new controller action invokes both `fullstack-rails-restful` and `fullstack-rails-qa`.
+Multiple skills can apply to a single task. For example, adding a new controller action invokes both `rails-cto-restful` and `rails-cto-qa`.
 
 ## Mandatory: New Code Ships with Tests
 
@@ -41,7 +41,7 @@ When creating or modifying any model, controller, service, command, job, or comp
 - `app/jobs/sync_company_job.rb` → `test/jobs/sync_company_job_test.rb`
 - `app/components/forms/combo_select.rb` → `test/components/forms/combo_select_test.rb`
 
-If the test file does not exist, create it. If it exists, update it to cover the new or changed code. Invoke `/fullstack-rails-minitest` for the correct test structure and DSL. No exceptions — untested code does not ship.
+If the test file does not exist, create it. If it exists, update it to cover the new or changed code. Invoke `/rails-cto-minitest` for the correct test structure and DSL. No exceptions — untested code does not ship.
 
 ## Mandatory: After Modifying Any `.rb` File
 
@@ -55,11 +55,11 @@ If the test file does not exist, create it. If it exists, update it to cover the
 
 ## Mandatory: After Modifying Any `.html.erb` File
 
-Invoke `/fullstack-rails-erb` and `/fullstack-rails-tailwind` after every ERB change. If `herb` is available in the project, run `bundle exec herb --fix` and `bundle exec herb format` on the changed files. Verify Tailwind classes follow the design system (no arbitrary values, no inline styles, no plain CSS), dark mode variants are present, and the UI is responsive.
+Invoke `/rails-cto-erb` and `/rails-cto-tailwind` after every ERB change. If `herb` is available in the project, run `bundle exec herb --fix` and `bundle exec herb format` on the changed files. Verify Tailwind classes follow the design system (no arbitrary values, no inline styles, no plain CSS), dark mode variants are present, and the UI is responsive.
 
 ## Mandatory: Every Plan Must Include QA
 
-When creating any implementation plan, always include `/fullstack-rails-qa` as a final step. No plan is complete without a QA gate. This applies whether the plan is a single-file fix or a multi-step feature.
+When creating any implementation plan, always include `/rails-cto-qa` as a final step. No plan is complete without a QA gate. This applies whether the plan is a single-file fix or a multi-step feature.
 
 ## Completion Checklist — Verify Before EVERY Response
 

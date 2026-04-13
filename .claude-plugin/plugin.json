@@ -1,12 +1,12 @@
 {
-  "name": "fullstack-rails-cto",
+  "name": "rails-cto",
   "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "author": {
     "name": "Matt Sears",
     "email": "matt@mattsears.com"
   },
-  "homepage": "https://github.com/mattsears/fullstack-rails-cto",
-  "repository": "https://github.com/mattsears/fullstack-rails-cto",
+  "homepage": "https://github.com/mattsears/rails-cto",
+  "repository": "https://github.com/mattsears/rails-cto",
   "license": "MIT"
 }

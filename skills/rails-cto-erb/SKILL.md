@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-erb
+name: rails-cto-erb
 description: >
   How to write clean, well-formatted ERB templates for this Rails 8 project.
   Use when creating or modifying any ERB view, partial, layout, or component template.

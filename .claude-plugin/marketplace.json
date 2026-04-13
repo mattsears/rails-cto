@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "fullstack-rails-cto",
+  "name": "rails-cto",
   "owner": {
     "name": "Matt Sears",
     "email": "matt@mattsears.com",
@@ -8,38 +8,39 @@
   },
   "metadata": {
     "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
-    "version": "0.1.5",
-    "repository": "https://github.com/mattsears/fullstack-rails-cto"
+    "version": "0.3.0",
+    "repository": "https://github.com/mattsears/rails-cto"
   },
   "plugins": [
     {
-      "name": "fullstack-rails-cto",
-      "description": "Opinionated Ruby on Rails development toolkit with 14 skills covering orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, API design, upgrades, and git workflows.",
-      "version": "0.1.5",
+      "name": "rails-cto",
+      "description": "Opinionated Ruby on Rails development toolkit with 16 skills covering orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, API design, upgrades, security, static analysis, and git workflows.",
+      "version": "0.3.0",
       "author": {
         "name": "Matt Sears",
         "email": "matt@mattsears.com"
       },
       "source": "./",
       "category": "development",
-      "homepage": "https://github.com/mattsears/fullstack-rails-cto",
-      "tags": ["rails", "ruby", "fullstack", "testing", "tailwind", "stimulus", "hotwire"],
+      "homepage": "https://github.com/mattsears/rails-cto",
+      "tags": ["rails", "ruby", "testing", "tailwind", "stimulus", "hotwire"],
       "skills": [
-        "./skills/fullstack-rails-cto",
-        "./skills/fullstack-rails-engineer",
-        "./skills/fullstack-rails-api",
-        "./skills/fullstack-rails-erb",
-        "./skills/fullstack-rails-minitest",
-        "./skills/fullstack-rails-qa",
-        "./skills/fullstack-rails-restful",
-        "./skills/fullstack-rails-stimulus",
-        "./skills/fullstack-rails-tailwind",
-        "./skills/fullstack-rails-upgrade",
-        "./skills/fullstack-rails-view-component",
-        "./skills/fullstack-rails-commit",
-        "./skills/fullstack-rails-pull-request",
-        "./skills/fullstack-rails-production-pr",
-        "./skills/fullstack-rails-security"
+        "./skills/rails-cto",
+        "./skills/rails-cto-engineer",
+        "./skills/rails-cto-api",
+        "./skills/rails-cto-erb",
+        "./skills/rails-cto-minitest",
+        "./skills/rails-cto-qa",
+        "./skills/rails-cto-restful",
+        "./skills/rails-cto-stimulus",
+        "./skills/rails-cto-tailwind",
+        "./skills/rails-cto-upgrade",
+        "./skills/rails-cto-view-component",
+        "./skills/rails-cto-security",
+        "./skills/rails-cto-static-analysis",
+        "./skills/rails-cto-commit",
+        "./skills/rails-cto-pull-request",
+        "./skills/rails-cto-production-pr"
       ]
     }
   ]

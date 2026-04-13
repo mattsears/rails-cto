@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-restful
+name: rails-cto-restful
 description: >
   How to write RESTful controllers for this Rails 8 project.
   Use when creating, modifying, or restructuring controllers, adding new actions,

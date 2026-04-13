@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-api
+name: rails-cto-api
 description: >
   How to build RESTful JSON APIs in a Rails 8 application following OpenAPI standards.
   Use when creating, modifying, or debugging API endpoints, serializers, authentication,
