@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-security
+name: rails-cto-security
 description: >
   Run Brakeman and bundler-audit security scans on changed files and fix high/medium
   confidence warnings. Use when any .rb or .html.erb file is created or modified.
@@ -281,10 +281,10 @@ If an advisory ID is listed in `.bundler-audit.yml` under `ignore`, bundler-audi
 
 ## Integration with QA
 
-This skill runs alongside `/fullstack-rails-qa`, not as a replacement. The typical end-of-task flow is:
+This skill runs alongside `/rails-cto-qa`, not as a replacement. The typical end-of-task flow is:
 
-1. `/fullstack-rails-qa` — RuboCop linting + test suite
-2. `/fullstack-rails-security` — Brakeman scan + bundler-audit
+1. `/rails-cto-qa` — RuboCop linting + test suite
+2. `/rails-cto-security` — Brakeman scan + bundler-audit
 3. Fix any issues from either skill
 4. Task complete
 

@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-commit
+name: rails-cto-commit
 description: Stage and commit all outstanding code changes with a clear, human-friendly commit message. Use this skill whenever the user asks to commit, save their work, push changes, or says things like "commit this", "save my progress", "push this up", "ship it", "commit all", or "commit and push". Also triggers for "/commit-all". Do NOT use for cherry-picking, rebasing, or other advanced git operations.
 ---
 

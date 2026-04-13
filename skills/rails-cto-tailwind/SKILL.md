@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-tailwind
+name: rails-cto-tailwind
 description: >
   How to write clean, maintainable Tailwind CSS in Rails projects.
   Use when creating or modifying any .html.erb file, view, partial, layout,

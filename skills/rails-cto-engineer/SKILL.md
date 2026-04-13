@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-engineer
+name: rails-cto-engineer
 description: This file provides guidance to Claude Code (claude.ai/code) when working with Ruby on Rails projects.
 model: opus
 ---

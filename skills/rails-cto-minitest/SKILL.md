@@ -1,5 +1,5 @@
 ---
-name: fullstack-rails-minitest
+name: rails-cto-minitest
 description: >
   Write and maintain Minitest tests for a Rails 8 application using the Minitest::Spec DSL.
   Covers model tests, command/service tests, controller/integration tests, job tests,

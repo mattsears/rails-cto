@@ -6,12 +6,12 @@
 # Claude Code spawns hooks as child processes of the same parent.
 #
 # Enforced conventions:
-#   *_test.rb            → /fullstack-rails-minitest
-#   *.html.erb           → /fullstack-rails-erb, /fullstack-rails-tailwind
-#   *.css                → /fullstack-rails-tailwind
-#   */controllers/*.js   → /fullstack-rails-stimulus
-#   */app/controllers/*.rb → /fullstack-rails-restful
-#   */app/components/*     → /fullstack-rails-view-component
+#   *_test.rb            → /rails-cto-minitest
+#   *.html.erb           → /rails-cto-erb, /rails-cto-tailwind
+#   *.css                → /rails-cto-tailwind
+#   */controllers/*.js   → /rails-cto-stimulus
+#   */app/controllers/*.rb → /rails-cto-restful
+#   */app/components/*     → /rails-cto-view-component
 set -euo pipefail
 
 input=$(cat)
@@ -23,17 +23,17 @@ file_path=$(echo "$input" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"
 required_skills=()
 
 if [[ "$file_path" == *_test.rb ]]; then
-  required_skills=(fullstack-rails-minitest)
+  required_skills=(rails-cto-minitest)
 elif [[ "$file_path" == *.html.erb ]]; then
-  required_skills=(fullstack-rails-erb fullstack-rails-tailwind)
+  required_skills=(rails-cto-erb rails-cto-tailwind)
 elif [[ "$file_path" == *.css ]]; then
-  required_skills=(fullstack-rails-tailwind)
+  required_skills=(rails-cto-tailwind)
 elif [[ "$file_path" == */controllers/*.js ]]; then
-  required_skills=(fullstack-rails-stimulus)
+  required_skills=(rails-cto-stimulus)
 elif [[ "$file_path" == */app/controllers/*.rb ]]; then
-  required_skills=(fullstack-rails-restful)
+  required_skills=(rails-cto-restful)
 elif [[ "$file_path" == */app/components/* ]]; then
-  required_skills=(fullstack-rails-view-component)
+  required_skills=(rails-cto-view-component)
 fi
 
 # Not a gated file type
