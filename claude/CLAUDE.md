@@ -10,17 +10,17 @@ When working on Ruby on Rails projects, always invoke `/rails-cto` at the start 
 
 Before planning or modifying any file, read the relevant skill(s) first. Follow the conventions in each skill — do not deviate without consulting it. Multiple skills may apply to a single change.
 
-| When you touch... | Read these skills first |
-|---|---|
-| Any `.rb` file | `/rails-cto-engineer` |
-| Files in `app/controllers/` (except API) | `/rails-cto-restful` |
-| Files in `app/controllers/api/` | `/rails-cto-api`, `/rails-cto-restful` |
-| Files in `app/models/` or `app/commands/` or `app/services/` | `/rails-cto-engineer` |
-| Files in `app/components/` | `/rails-cto-view-component` |
-| Files in `app/frontend/controllers/` (Stimulus) | `/rails-cto-stimulus` |
-| Any `.html.erb` file | `/rails-cto-erb`, `/rails-cto-tailwind` |
-| Any `.css` or Tailwind-related file | `/rails-cto-tailwind` |
-| Any test file in `test/` | `/rails-cto-minitest` |
+| When you touch...                                            | Read these skills first                 |
+|--------------------------------------------------------------|-----------------------------------------|
+| Any `.rb` file                                               | `/rails-cto-engineer`                   |
+| Files in `app/controllers/` (except API)                     | `/rails-cto-restful`                    |
+| Files in `app/controllers/api/`                              | `/rails-cto-api`, `/rails-cto-restful`  |
+| Files in `app/models/` or `app/commands/` or `app/services/` | `/rails-cto-engineer`                   |
+| Files in `app/components/`                                   | `/rails-cto-view-component`             |
+| Files in `app/frontend/controllers/` (Stimulus)              | `/rails-cto-stimulus`                   |
+| Any `.html.erb` file                                         | `/rails-cto-erb`, `/rails-cto-tailwind` |
+| Any `.css` or Tailwind-related file                          | `/rails-cto-tailwind`                   |
+| Any test file in `test/`                                     | `/rails-cto-minitest`                   |
 
 ## Mandatory: After Modifying Any `.rb` File
 

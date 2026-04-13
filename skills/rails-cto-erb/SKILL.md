@@ -34,43 +34,41 @@ bundle exec herb --version 2>/dev/null
 
 If the command fails, inform the user:
 
-> "This project doesn't have the `herb` gem installed. For enhanced ERB linting and formatting, add these to your project:
+> "This project doesn't have the `herb` gem installed. The recommended way to set up Herb (and the rest of the rails-cto toolchain) is to install the companion [`rails-cto` gem](https://github.com/mattsears/rails-cto-gem):
 >
 > **Gemfile:**
 > ```ruby
-> gem "herb"
+> group :development, :test do
+>   gem "rails-cto"
+> end
 > ```
 >
-> **package.json (devDependencies):**
-> ```json
-> "@herb-tools/formatter": "0.9.2",
-> "@herb-tools/linter": "0.9.2"
+> Then run:
+> ```bash
+> bundle install
+> bundle exec rails-cto init
 > ```
 >
-> Then run `bundle install && yarn install`."
+> That installs Herb along with the bundled rewriters and rules. You'll also need `@herb-tools/formatter` and `@herb-tools/linter` in `package.json` devDependencies."
 
 If Herb is not available, skip steps 2, 3, and 4 below and continue with the rest of the ERB skill. Do not block on Herb installation. But if Herb IS available, you MUST run steps 2, 3, and 4 — do not skip them.
 
-### 2. Install bundled rewriters and rules (if missing)
+### 2. Verify the bundled rewriters and rules are installed
 
-Check if the project already has the attribute alignment rewriter and the no-inline-styles rule:
+The [`rails-cto` gem](https://github.com/mattsears/rails-cto-gem) ships the attribute alignment rewriter and the no-inline-styles rule. Check that `rails-cto init` has been run in the project:
 
 ```bash
 ls .herb/rewriters/align-attributes.mjs 2>/dev/null
 ls .herb/rules/no-inline-styles.mjs 2>/dev/null
 ```
 
-If either file does not exist, copy it from this skill's templates:
+If either file is missing, tell the user to run:
 
 ```bash
-mkdir -p .herb/rewriters .herb/rules
-cp templates/align-attributes.mjs .herb/rewriters/
-cp templates/no-inline-styles.mjs .herb/rules/
+bundle exec rails-cto init
 ```
 
-Bundled with this skill:
-- [templates/align-attributes.mjs](templates/align-attributes.mjs) — vertically aligns HTML attributes when an element has two or more
-- [templates/no-inline-styles.mjs](templates/no-inline-styles.mjs) — flags `style="..."` attributes and enforces Tailwind utility classes instead
+That drops the rewriters and rules into place (skipping any files that already exist). Pass `--force` to overwrite.
 
 ### 3. Identify changed ERB files
 
@@ -272,7 +270,7 @@ Keep these at the very top of the file, right after the header comment.
 
 Never use `style="..."` attributes in ERB templates. Use Tailwind CSS utility classes instead. Inline styles bypass the design system, can't be purged, don't support responsive or dark mode variants, and make templates harder to scan.
 
-The bundled `no-inline-styles.mjs` Herb rule flags these automatically during the lint step.
+The `no-inline-styles.mjs` Herb rule (shipped by the [`rails-cto` gem](https://github.com/mattsears/rails-cto-gem)) flags these automatically during the lint step.
 
 ```erb
 <%# WRONG — inline styles %>
