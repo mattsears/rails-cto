@@ -1,7 +1,7 @@
 {
   "name": "rails-cto",
   "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": {
     "name": "Matt Sears",
     "email": "matt@mattsears.com"
