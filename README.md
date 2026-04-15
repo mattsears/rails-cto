@@ -13,6 +13,7 @@ This plugin has a companion Ruby gem, [`rails-cto`](https://github.com/mattsears
 |-----------------------------|--------------------------------------------------------------------------------------|
 | `rails-cto`                 | Orchestrator — session init, skill routing, QA gates, completion checklist           |
 | `rails-cto-engineer`        | Core Rails development guidance and patterns                                         |
+| `rails-cto-architect`       | Pre-engineering planning for multi-step features — explores, researches gems, plans  |
 | `rails-cto-api`             | RESTful JSON API conventions and OpenAPI standards                                   |
 | `rails-cto-erb`             | ERB view and partial conventions                                                     |
 | `rails-cto-minitest`        | Minitest with Spec DSL, parallel tests, SimpleCov coverage                           |

@@ -17,6 +17,7 @@ Invoke these skills automatically when the task matches — do not wait for the 
 | Skill | When to invoke |
 |-------|---------------|
 | `rails-cto-engineer` | Session start; any Rails code question; architecture decisions |
+| `rails-cto-architect` | Multi-step feature requests; explicit planning phrases ("plan", "architect", "design", "how should I build X"); spec files or long-form requirements detected — **before any code is written** |
 | `rails-cto-api` | Creating or modifying anything under `Api::` namespace, serializers, API routes, or API tests |
 | `rails-cto-restful` | Creating or modifying controllers, adding routes, or restructuring actions |
 | `rails-cto-erb` | Creating or modifying any `.html.erb` view, partial, or layout |
