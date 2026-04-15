@@ -1,6 +1,20 @@
 ---
 name: rails-cto-architect
-description: Write comprehensive implementation plans for multi-step Rails features before any code is written. Use when the user has a spec or feature request and says "plan", "architect", "design", "how should I build X", or provides long-form requirements. Produces a bite-sized, task-by-task plan optimized for rails-cto-engineer to execute. Never writes code, never commits, and never generates plans that contain commit steps.
+description: >
+  How to write comprehensive implementation plans for multi-step Rails
+  features before any code is written. Use when the user has a spec,
+  feature request, or multi-step task and wants to plan the approach
+  before touching code. Also use when the user mentions "create a plan",
+  "write a plan", "plan this", "plan a feature", "implementation plan",
+  "build a new feature", "new feature", "how should I build", "how do I
+  build", "architect this", "design this", "design a feature", "feature
+  design", "spec", "requirements", or pastes long-form requirements.
+  Proactively invoke this skill BEFORE writing any code for multi-file
+  or multi-step work, even if the user doesn't explicitly say "plan" —
+  every multi-step feature goes through architect first. Produces a
+  bite-sized, task-by-task plan optimized for rails-cto-engineer to
+  execute. Never writes code, never commits, and never generates plans
+  that contain commit steps.
 model: opus
 ---
 
