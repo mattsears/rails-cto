@@ -63,23 +63,35 @@ Do not proceed to RuboCop until static analysis passes or the user acknowledges 
 
 ### 5. Run RuboCop with autocorrect
 
+Scope: every `.rb` and `.rake` file that appears in `git diff <base>...HEAD --name-only --diff-filter=AM` plus any uncommitted modifications from `git status`. Do not run against the entire codebase.
+
+**The file is the unit, not the diff.** CI runs rubocop on whole files — any offense in a file you modified will fail the build, even on lines you did not author. If you changed one line in a 200-line file and rubocop reports offenses on the other 199, fix them. "I didn't write that code" is not a valid reason to skip an offense in a file you touched.
+
+Run autocorrect first:
+
 ```bash
 bundle exec rubocop -A path/to/changed_file.rb
 ```
 
-Always use `-A` (aggressive autocorrect) so RuboCop fixes everything it can automatically. Run it on each changed Ruby file — not the entire codebase.
-
-For multiple files changed at once:
+For multiple files:
 
 ```bash
 bundle exec rubocop -A app/controllers/bookmarks_controller.rb app/models/bookmark.rb test/controllers/bookmarks_controller_test.rb
 ```
 
-Review the output for:
-- **Offenses that couldn't be auto-corrected** — these need manual fixes
-- **Unexpected changes** — autocorrect occasionally alters logic (rare but possible)
+Then review the output:
+- **Offenses that couldn't be auto-corrected** — fix manually. This includes unsafe cops (`-A` skips some by design) and cops without autocorrect support.
+- **Unexpected logic changes** from autocorrect — rare but possible; diff before trusting.
 
-If RuboCop reports remaining offenses after `-A`, fix them manually and re-run.
+**Verification (required).** After fixes, re-run without `-A` to confirm the file is clean:
+
+```bash
+bundle exec rubocop path/to/changed_file.rb
+```
+
+Exit code must be 0 and the report must show `no offenses detected`. If anything remains, fix it and re-run — repeat until clean.
+
+**Stop-gate.** Do not proceed to section 6 (tests) until every changed `.rb` / `.rake` file exits rubocop with zero offenses. A changed file with lingering offenses is not shippable; it will fail CI.
 
 ### 6. Run tests
 
