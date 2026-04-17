@@ -1,6 +1,6 @@
 # rails-cto
 
-Opinionated Claude Code plugin for Ruby on Rails development — orchestration, code quality, testing, and git workflows.
+Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator. It provides expert guidance across the full stack — controllers, models, JSON APIs, ERB, ViewComponents, Stimulus, Tailwind, and Minitest — and enforces a strict quality pipeline on every change, running RuboCop, Reek, Flog, Flay, Brakeman, bundler-audit, and SimpleCov before anything is considered done. It also plans multi-step features, guides Rails version upgrades, and automates the git workflow from clean commits through staging and production pull requests — so no QA step gets silently skipped.
 
 ## Companion gem
 
@@ -76,14 +76,11 @@ Then run `yarn install` (or `npm install`).
 
 ## Updating
 
-Refresh the marketplace manifest first so Claude Code sees the latest published version, then update the plugin:
+Refresh the marketplace manifest so Claude Code picks up the latest published version:
 
 ```bash
 /plugin marketplace update rails-cto
-/plugin update rails-cto@rails-cto
 ```
-
-Without the `marketplace update` step, Claude Code keeps using its cached manifest and the plugin update won't pick up new releases.
 
 ## Uninstalling
 
@@ -97,30 +94,3 @@ To also remove the marketplace reference:
 /plugin marketplace remove mattsears/rails-cto
 ```
 
-## Plugin Structure
-
-```
-rails-cto/
-├── .claude-plugin/
-│   └── plugin.json          # Plugin metadata
-├── skills/                   # All skills
-│   ├── rails-cto/
-│   ├── rails-cto-engineer/
-│   ├── rails-cto-api/
-│   ├── rails-cto-erb/
-│   ├── rails-cto-minitest/
-│   ├── rails-cto-qa/
-│   ├── rails-cto-restful/
-│   ├── rails-cto-stimulus/
-│   ├── rails-cto-tailwind/
-│   ├── rails-cto-upgrade/
-│   ├── rails-cto-view-component/
-│   ├── rails-cto-security/
-│   ├── rails-cto-static-analysis/
-│   ├── rails-cto-commit/
-│   ├── rails-cto-pull-request/
-│   └── rails-cto-production-pr/
-├── claude/
-│   └── CLAUDE.md             # Project-level config (for this repo only)
-└── README.md
-```
