@@ -2,14 +2,22 @@
 
 Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator. It provides expert guidance across the full stack — controllers, models, JSON APIs, ERB, ViewComponents, Stimulus, Tailwind, and Minitest — and enforces a strict quality pipeline on every change, running RuboCop, Reek, Flog, Flay, Brakeman, bundler-audit, and SimpleCov before anything is considered done. It also plans multi-step features, guides Rails version upgrades, and automates the git workflow from clean commits through staging and production pull requests — so no QA step gets silently skipped.
 
-## Companion gem
-
-This plugin has a companion Ruby gem, [`rails-cto`](https://github.com/mattsears/rails-cto-gem), that ships the quality toolchain (RuboCop, Reek, Flog, Flay, Brakeman, bundler-audit, SimpleCov, Herb), the matching config files, a custom RuboCop cop, and the Herb rewriters/rules the skills expect. A single `rails-cto init` command scaffolds everything into a Rails project so the plugin's skills have everything they need to run. See [Installation](#installation) below.
-
-
 ## Skills
 
-Start every session with `/rails-cto` — the orchestrator skill handles session init, routes to specialist skills (engineering, planning, testing, QA, security, git workflows, and more), enforces QA gates, and runs the completion checklist. Browse `skills/` for the full list.
+rails-cto covers the full Rails development lifecycle:
+
+- Plans multi-step features before code is written — scoping, gem research, edge cases, and step-by-step implementation plans
+- Writes idiomatic Rails code for controllers, models, RESTful routes, JSON APIs, and command/service objects
+- Builds the front-end with ERB, ViewComponents, Stimulus, Turbo, and Tailwind
+- Writes Minitest tests targeting full or near-full coverage — Spec DSL, parallel execution, and SimpleCov reports to verify it
+- Auto-formats and lints Ruby with RuboCop and ERB with Herb — fixes what it can, flags what it can't
+- Enforces code quality with Reek (code smells), Flog (complexity), and Flay (duplication)
+- Scans for security issues using Brakeman and bundler-audit
+- Guides Rails version upgrades with selective diffs and upgrade notes
+- Automates the git workflow — clean commits, PRs targeting staging, and production release PRs
+- Enforces QA gates at every step so nothing ships without tests, lint, and review
+
+Start every session with `/rails-cto` — the orchestrator skill handles session init, routes to specialist skills, enforces QA gates, and runs the completion checklist. Browse `skills/` for the full list of individual skills.
 
 ### Marketplace Dependencies
 
@@ -27,16 +35,6 @@ These skills reference third-party skills from the Claude Code marketplace:
 /plugin marketplace add mattsears/rails-cto
 /plugin install rails-cto@rails-cto
 ```
-
-### Install marketplace dependencies
-
-The Stimulus skill depends on `better-stimulus@obie-skills`. Install it from the [obie/skills](https://github.com/obie/skills) marketplace:
-
-```bash
-/plugin marketplace add obie/skills
-/plugin install better-stimulus@obie-skills
-```
-
 ### Install the companion gem
 
 The plugin's skills rely on a quality toolchain (RuboCop, Reek, Flog, Flay, Brakeman, bundler-audit, SimpleCov, Herb) and a set of matching config files. Rather than installing and configuring all of that by hand, add the companion [`rails-cto` gem](https://github.com/mattsears/rails-cto-gem) to your Rails project:
@@ -45,6 +43,15 @@ The plugin's skills rely on a quality toolchain (RuboCop, Reek, Flog, Flay, Brak
 group :development, :test do
   gem "rails-cto"
 end
+```
+
+### Install marketplace dependencies
+
+The Stimulus skill depends on `better-stimulus@obie-skills`. Install it from the [obie/skills](https://github.com/obie/skills) marketplace:
+
+```bash
+/plugin marketplace add obie/skills
+/plugin install better-stimulus@obie-skills
 ```
 
 Then bootstrap the project:
@@ -93,4 +100,3 @@ To also remove the marketplace reference:
 ```bash
 /plugin marketplace remove mattsears/rails-cto
 ```
-
