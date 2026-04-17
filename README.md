@@ -9,25 +9,7 @@ This plugin has a companion Ruby gem, [`rails-cto`](https://github.com/mattsears
 
 ## Skills
 
-| Skill                       | Description                                                                          |
-|-----------------------------|--------------------------------------------------------------------------------------|
-| `rails-cto`                 | Orchestrator — session init, skill routing, QA gates, completion checklist           |
-| `rails-cto-engineer`        | Core Rails development guidance and patterns                                         |
-| `rails-cto-architect`       | Pre-engineering planning for multi-step features — explores, researches gems, plans  |
-| `rails-cto-api`             | RESTful JSON API conventions and OpenAPI standards                                   |
-| `rails-cto-erb`             | ERB view and partial conventions                                                     |
-| `rails-cto-minitest`        | Minitest with Spec DSL, parallel tests, SimpleCov coverage                           |
-| `rails-cto-qa`              | Quality assurance — linting, testing, and code review                                |
-| `rails-cto-restful`         | RESTful controller and routing patterns                                              |
-| `rails-cto-stimulus`        | Stimulus controller conventions and Turbo integration                                |
-| `rails-cto-tailwind`        | Tailwind CSS best practices, design system, dark mode, responsive, accessibility     |
-| `rails-cto-upgrade`         | Rails version upgrade guidance                                                       |
-| `rails-cto-view-component`  | ViewComponent patterns                                                               |
-| `rails-cto-security`        | Security scanning — Brakeman + bundler-audit for code and dependency vulnerabilities |
-| `rails-cto-static-analysis` | Static analysis — Reek (code smells), Flog (complexity), Flay (duplication)          |
-| `rails-cto-commit`          | Stage and commit all changes with human-friendly messages                            |
-| `rails-cto-pull-request`    | Create PRs targeting staging                                                         |
-| `rails-cto-production-pr`   | Create production PRs (staging to main)                                              |
+Start every session with `/rails-cto` — the orchestrator skill handles session init, routes to specialist skills (engineering, planning, testing, QA, security, git workflows, and more), enforces QA gates, and runs the completion checklist. Browse `skills/` for the full list.
 
 ### Marketplace Dependencies
 
@@ -92,25 +74,16 @@ Herb's Node-side formatter and linter aren't part of the gem. Add them to your `
 
 Then run `yarn install` (or `npm install`).
 
-### Docker Usage
-
-These skills assume Rails runs locally. If you use Docker, add this to your project's `CLAUDE.md`:
-
-```markdown
-# Docker
-
-I use Docker for local development. Prefix all Rails, Ruby, bundle, and yarn
-commands with `docker compose exec web`. Git and GitHub CLI commands run on
-the host — do not prefix those.
-```
-
-Adjust `docker compose exec web` to match your service name.
-
 ## Updating
 
+Refresh the marketplace manifest first so Claude Code sees the latest published version, then update the plugin:
+
 ```bash
+/plugin marketplace update rails-cto
 /plugin update rails-cto@rails-cto
 ```
+
+Without the `marketplace update` step, Claude Code keeps using its cached manifest and the plugin update won't pick up new releases.
 
 ## Uninstalling
 
