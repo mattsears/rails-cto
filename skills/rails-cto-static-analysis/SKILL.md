@@ -70,10 +70,10 @@ For each changed `.rb` file, scan for `def` declarations and verify a comment ap
 ### What a good comment looks like
 
 ```ruby
-# Ensures the user sees their most relevant bookmarks first,
+# Ensures the user sees their most relevant posts first,
 # because recently active tags reflect current interests.
-def prioritized_bookmarks
-  bookmarks.joins(:tags).order("tags.updated_at DESC")
+def prioritized_posts
+  posts.joins(:tags).order("tags.updated_at DESC")
 end
 
 # Strips tracking parameters so we store clean URLs

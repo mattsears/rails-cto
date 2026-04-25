@@ -308,7 +308,7 @@ Use Tailwind's `sr-only` class for content that should be announced but not disp
 ```erb
 <button class="p-2">
   <%= inline_icon(:trash, "w-5 h-5") %>
-  <span class="sr-only">Delete bookmark</span>
+  <span class="sr-only">Delete post</span>
 </button>
 ```
 

@@ -13,7 +13,7 @@ Before planning or modifying any file, read the relevant skill(s) first. Follow 
 | Files in `app/controllers/api/`                              | `/rails-cto-api`, `/rails-cto-restful`  |
 | Files in `app/models/` or `app/commands/` or `app/services/` | `/rails-cto-engineer`                   |
 | Files in `app/components/`                                   | `/rails-cto-view-component`             |
-| Files in `app/frontend/controllers/` (Stimulus)              | `/rails-cto-stimulus`                   |
+| Files in `app/javascript/controllers/` (Stimulus)              | `/rails-cto-stimulus`                   |
 | Any `.html.erb` file                                         | `/rails-cto-erb`, `/rails-cto-tailwind` |
 | Any `.css` or Tailwind-related file                          | `/rails-cto-tailwind`                   |
 | Any test file in `test/`                                     | `/rails-cto-minitest`                   |

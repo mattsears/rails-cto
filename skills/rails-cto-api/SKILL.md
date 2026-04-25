@@ -22,15 +22,15 @@ app/
 │   └── api/
 │       └── v1/
 │           ├── base_controller.rb    # Auth, error handling, pagination
-│           ├── bookmarks_controller.rb
+│           ├── posts_controller.rb
 │           └── ...
 ├── serializers/
 │   └── api/
 │       └── v1/
-│           ├── bookmark_serializer.rb
+│           ├── post_serializer.rb
 │           └── ...
 └── services/                         # Reuse existing service objects
-    └── bookmarks/
+    └── posts/
         ├── create.rb
         └── ...
 
@@ -53,14 +53,14 @@ All API endpoints live under a URL-based version prefix. This makes the version 
 # config/routes.rb
 namespace :api do
   namespace :v1 do
-    resources :bookmarks, only: [:index, :show, :create, :update, :destroy]
+    resources :posts, only: [:index, :show, :create, :update, :destroy]
     resources :collections, only: [:index, :show]
     # Add resources as needed
   end
 end
 ```
 
-This produces routes like `/api/v1/bookmarks`, `/api/v1/bookmarks/:id`, etc.
+This produces routes like `/api/v1/posts`, `/api/v1/posts/:id`, etc.
 
 When introducing a breaking change in the future, create `Api::V2::` alongside V1 rather than modifying V1. Non-breaking additions (new fields, new endpoints) can go into the existing version.
 
@@ -166,7 +166,7 @@ end
 API consumers authenticate with an API key passed in the `X-Api-Key` header:
 
 ```
-GET /api/v1/bookmarks
+GET /api/v1/posts
 X-Api-Key: sk_live_abc123def456
 ```
 
@@ -183,76 +183,76 @@ API controllers follow the same RESTful conventions as web controllers — stand
 ```ruby
 # frozen_string_literal: true
 
-# Exposes bookmarks to external API consumers.
+# Exposes posts to external API consumers.
 # Delegates business logic to existing service objects.
-class Api::V1::BookmarksController < Api::V1::BaseController
-  before_action :set_bookmark, only: [:show, :update, :destroy]
+class Api::V1::PostsController < Api::V1::BaseController
+  before_action :set_post, only: [:show, :update, :destroy]
 
-  # GET /api/v1/bookmarks
+  # GET /api/v1/posts
   def index
-    result = paginate(current_account.bookmarks)
+    result = paginate(current_account.posts)
 
     render json: {
-      data: Api::V1::BookmarkSerializer.new(result[:records]).as_json,
+      data: Api::V1::PostSerializer.new(result[:records]).as_json,
       meta: result[:meta]
     }
   end
 
-  # GET /api/v1/bookmarks/:id
+  # GET /api/v1/posts/:id
   def show
-    render json: { data: Api::V1::BookmarkSerializer.new(@bookmark).as_json }
+    render json: { data: Api::V1::PostSerializer.new(@post).as_json }
   end
 
-  # POST /api/v1/bookmarks
+  # POST /api/v1/posts
   def create
-    result = Bookmarks::Create.call(
-      params: bookmark_params,
+    result = Posts::Create.call(
+      params: post_params,
       account: current_account
     )
 
     if result.success?
-      render json: { data: Api::V1::BookmarkSerializer.new(result.bookmark).as_json },
+      render json: { data: Api::V1::PostSerializer.new(result.post).as_json },
              status: :created
     else
       render_error(status: 422, message: "Validation failed", details: result.errors.message_list)
     end
   end
 
-  # PATCH /api/v1/bookmarks/:id
+  # PATCH /api/v1/posts/:id
   def update
-    result = Bookmarks::Update.run(
-      bookmark: @bookmark,
-      params: bookmark_params.to_h
+    result = Posts::Update.run(
+      post: @post,
+      params: post_params.to_h
     )
 
     if result.success?
-      render json: { data: Api::V1::BookmarkSerializer.new(@bookmark.reload).as_json }
+      render json: { data: Api::V1::PostSerializer.new(@post.reload).as_json }
     else
       render_error(status: 422, message: "Validation failed", details: result.errors.message_list)
     end
   end
 
-  # DELETE /api/v1/bookmarks/:id
+  # DELETE /api/v1/posts/:id
   def destroy
-    @bookmark.discard!
+    @post.discard!
     head :no_content
   end
 
   private
 
-  def set_bookmark
-    @bookmark = current_account.bookmarks.find(params[:id])
+  def set_post
+    @post = current_account.posts.find(params[:id])
   end
 
-  def bookmark_params
-    params.require(:bookmark).permit(:title, :url, :description, :collection_id)
+  def post_params
+    params.require(:post).permit(:title, :url, :description, :collection_id)
   end
 end
 ```
 
 Key points:
-- Always scope queries through `current_account` — never use unscoped `Bookmark.find`
-- Reuse existing service objects (`Bookmarks::Create`, `Bookmarks::Update`, etc.)
+- Always scope queries through `current_account` — never use unscoped `Post.find`
+- Reuse existing service objects (`Posts::Create`, `Posts::Update`, etc.)
 - Return `201 Created` for successful creation, `204 No Content` for deletion
 - Wrap response data in a `data` key for consistency
 
@@ -263,10 +263,10 @@ Use a serializer gem (alba or blueprinter) to control exactly which fields are e
 ```ruby
 # frozen_string_literal: true
 
-# Serializes bookmarks for the V1 API. Controls which fields
+# Serializes posts for the V1 API. Controls which fields
 # are visible to external consumers — adding fields here is a
 # public contract change.
-class Api::V1::BookmarkSerializer
+class Api::V1::PostSerializer
   attr_reader :resource
 
   def initialize(resource)
@@ -313,7 +313,7 @@ All successful responses wrap data in a `data` key. List endpoints also include 
 {
   "data": {
     "id": 1,
-    "title": "Example Bookmark",
+    "title": "Example Post",
     "url": "https://example.com",
     "created_at": "2026-03-18T12:00:00Z",
     "updated_at": "2026-03-18T12:00:00Z"
@@ -358,8 +358,8 @@ Clients pass two parameters:
 - `after` — cursor from a previous response's `meta.next_cursor`
 
 ```
-GET /api/v1/bookmarks?limit=10
-GET /api/v1/bookmarks?limit=10&after=MjU
+GET /api/v1/posts?limit=10
+GET /api/v1/posts?limit=10&after=MjU
 ```
 
 The base controller's `paginate` helper handles this. See the base controller section above for the implementation.
@@ -470,30 +470,30 @@ end
 ### Writing integration tests with schema validation
 
 ```ruby
-# test/controllers/api/v1/bookmarks_controller_test.rb
+# test/controllers/api/v1/posts_controller_test.rb
 
 require "test_helper"
 
-class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::PostsControllerTest < ActionDispatch::IntegrationTest
   include ApiTestHelper
 
   setup do
     @account = accounts(:one)
-    @bookmark = bookmarks(:one)
+    @post = posts(:one)
   end
 
   # --- Authentication ---
 
   test "returns 401 without an API key" do
-    get api_v1_bookmarks_url, headers: api_headers
+    get api_v1_posts_url, headers: api_headers
     assert_response :unauthorized
     assert_schema_conform
   end
 
   # --- Index ---
 
-  test "lists bookmarks for the authenticated account" do
-    get api_v1_bookmarks_url, headers: api_headers(account: @account)
+  test "lists posts for the authenticated account" do
+    get api_v1_posts_url, headers: api_headers(account: @account)
     assert_response :ok
     assert_schema_conform
 
@@ -503,7 +503,7 @@ class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "paginates with cursor" do
-    get api_v1_bookmarks_url,
+    get api_v1_posts_url,
         params: { limit: 1 },
         headers: api_headers(account: @account)
     assert_response :ok
@@ -515,25 +515,25 @@ class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
 
   # --- Show ---
 
-  test "returns a single bookmark" do
-    get api_v1_bookmark_url(@bookmark), headers: api_headers(account: @account)
+  test "returns a single post" do
+    get api_v1_post_url(@post), headers: api_headers(account: @account)
     assert_response :ok
     assert_schema_conform
   end
 
-  test "returns 404 for a bookmark from another account" do
-    other_bookmark = bookmarks(:other_account)
-    get api_v1_bookmark_url(other_bookmark), headers: api_headers(account: @account)
+  test "returns 404 for a post from another account" do
+    other_post = posts(:other_account)
+    get api_v1_post_url(other_post), headers: api_headers(account: @account)
     assert_response :not_found
     assert_schema_conform
   end
 
   # --- Create ---
 
-  test "creates a bookmark" do
-    assert_difference("Bookmark.count") do
-      post api_v1_bookmarks_url,
-           params: { bookmark: { url: "https://example.com", title: "New" } }.to_json,
+  test "creates a post" do
+    assert_difference("Post.count") do
+      post api_v1_posts_url,
+           params: { post: { url: "https://example.com", title: "New" } }.to_json,
            headers: api_headers(account: @account)
     end
     assert_response :created
@@ -541,8 +541,8 @@ class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "returns 422 with invalid params" do
-    post api_v1_bookmarks_url,
-         params: { bookmark: { url: "" } }.to_json,
+    post api_v1_posts_url,
+         params: { post: { url: "" } }.to_json,
          headers: api_headers(account: @account)
     assert_response :unprocessable_entity
     assert_schema_conform
@@ -550,9 +550,9 @@ class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
 
   # --- Update ---
 
-  test "updates a bookmark" do
-    patch api_v1_bookmark_url(@bookmark),
-          params: { bookmark: { title: "Updated" } }.to_json,
+  test "updates a post" do
+    patch api_v1_post_url(@post),
+          params: { post: { title: "Updated" } }.to_json,
           headers: api_headers(account: @account)
     assert_response :ok
     assert_schema_conform
@@ -560,8 +560,8 @@ class Api::V1::BookmarksControllerTest < ActionDispatch::IntegrationTest
 
   # --- Destroy ---
 
-  test "deletes a bookmark" do
-    delete api_v1_bookmark_url(@bookmark), headers: api_headers(account: @account)
+  test "deletes a post" do
+    delete api_v1_post_url(@post), headers: api_headers(account: @account)
     assert_response :no_content
   end
 end
@@ -584,10 +584,10 @@ servers:
   - url: /api/v1
 
 paths:
-  /bookmarks:
+  /posts:
     get:
-      summary: List bookmarks
-      tags: [Bookmarks]
+      summary: List posts
+      tags: [Posts]
       security: [{ api_key: [] }]
       parameters:
         - name: limit
@@ -600,7 +600,7 @@ paths:
           description: Cursor for the next page
       responses:
         "200":
-          description: Bookmarks retrieved
+          description: Posts retrieved
           content:
             application/json:
               schema:
@@ -608,13 +608,13 @@ paths:
                 properties:
                   data:
                     type: array
-                    items: { $ref: "#/components/schemas/Bookmark" }
+                    items: { $ref: "#/components/schemas/Post" }
                   meta: { $ref: "#/components/schemas/PaginationMeta" }
         "401": { $ref: "#/components/responses/Unauthorized" }
 
     post:
-      summary: Create a bookmark
-      tags: [Bookmarks]
+      summary: Create a post
+      tags: [Posts]
       security: [{ api_key: [] }]
       requestBody:
         required: true
@@ -623,7 +623,7 @@ paths:
             schema:
               type: object
               properties:
-                bookmark:
+                post:
                   type: object
                   properties:
                     title: { type: string }
@@ -633,17 +633,17 @@ paths:
                   required: [url]
       responses:
         "201":
-          description: Bookmark created
+          description: Post created
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  data: { $ref: "#/components/schemas/Bookmark" }
+                  data: { $ref: "#/components/schemas/Post" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "422": { $ref: "#/components/responses/ValidationFailed" }
 
-  /bookmarks/{id}:
+  /posts/{id}:
     parameters:
       - name: id
         in: path
@@ -651,24 +651,24 @@ paths:
         schema: { type: integer }
 
     get:
-      summary: Get a bookmark
-      tags: [Bookmarks]
+      summary: Get a post
+      tags: [Posts]
       security: [{ api_key: [] }]
       responses:
         "200":
-          description: Bookmark retrieved
+          description: Post retrieved
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  data: { $ref: "#/components/schemas/Bookmark" }
+                  data: { $ref: "#/components/schemas/Post" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "404": { $ref: "#/components/responses/NotFound" }
 
     patch:
-      summary: Update a bookmark
-      tags: [Bookmarks]
+      summary: Update a post
+      tags: [Posts]
       security: [{ api_key: [] }]
       requestBody:
         required: true
@@ -677,7 +677,7 @@ paths:
             schema:
               type: object
               properties:
-                bookmark:
+                post:
                   type: object
                   properties:
                     title: { type: string }
@@ -686,30 +686,30 @@ paths:
                     collection_id: { type: integer }
       responses:
         "200":
-          description: Bookmark updated
+          description: Post updated
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  data: { $ref: "#/components/schemas/Bookmark" }
+                  data: { $ref: "#/components/schemas/Post" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "404": { $ref: "#/components/responses/NotFound" }
         "422": { $ref: "#/components/responses/ValidationFailed" }
 
     delete:
-      summary: Delete a bookmark
-      tags: [Bookmarks]
+      summary: Delete a post
+      tags: [Posts]
       security: [{ api_key: [] }]
       responses:
         "204":
-          description: Bookmark deleted
+          description: Post deleted
         "401": { $ref: "#/components/responses/Unauthorized" }
         "404": { $ref: "#/components/responses/NotFound" }
 
 components:
   schemas:
-    Bookmark:
+    Post:
       type: object
       properties:
         id: { type: integer }

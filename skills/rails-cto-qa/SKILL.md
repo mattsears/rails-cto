@@ -44,11 +44,11 @@ Make your changes to controllers, models, commands, tests, etc.
 
 For each changed `.rb` file (excluding test files themselves), check that a corresponding test file exists. Map by convention:
 
-- `app/models/bookmark.rb` → `test/models/bookmark_test.rb`
-- `app/controllers/bookmarks_controller.rb` → `test/controllers/bookmarks_controller_test.rb`
-- `app/commands/bookmarks/create.rb` → `test/commands/bookmarks/create_test.rb`
-- `app/services/bookmarks/search.rb` → `test/services/bookmarks/search_test.rb`
-- `app/jobs/sync_bookmark_job.rb` → `test/jobs/sync_bookmark_job_test.rb`
+- `app/models/post.rb` → `test/models/post_test.rb`
+- `app/controllers/posts_controller.rb` → `test/controllers/posts_controller_test.rb`
+- `app/commands/posts/create.rb` → `test/commands/posts/create_test.rb`
+- `app/services/posts/search.rb` → `test/services/posts/search_test.rb`
+- `app/jobs/sync_post_job.rb` → `test/jobs/sync_post_job_test.rb`
 - `app/components/forms/combo_select.rb` → `test/components/forms/combo_select_test.rb`
 
 If the test file does not exist, create it before proceeding. Invoke `/rails-cto-minitest` for the correct test structure and DSL. New or changed code without tests is not shippable.
@@ -76,7 +76,7 @@ bundle exec rubocop -A path/to/changed_file.rb
 For multiple files:
 
 ```bash
-bundle exec rubocop -A app/controllers/bookmarks_controller.rb app/models/bookmark.rb test/controllers/bookmarks_controller_test.rb
+bundle exec rubocop -A app/controllers/posts_controller.rb app/models/post.rb test/controllers/posts_controller_test.rb
 ```
 
 Then review the output:
@@ -135,7 +135,7 @@ Also look for dead code — methods, variables, or constants that are no longer 
 **Example:**
 ```ruby
 # Repeated in multiple controllers — extract to a concern or helper
-current_user.bookmarks.where(active: true).order(created_at: :desc)
+current_user.posts.where(active: true).order(created_at: :desc)
 ```
 
 #### Test structure: `subject` is required
@@ -154,11 +154,11 @@ class PlanDecoratorTest < ActiveSupport::TestCase
 end
 
 # ALSO WRONG — no subject, local variable instead
-class BookmarkTest < ActiveSupport::TestCase
+class PostTest < ActiveSupport::TestCase
   describe "#host" do
     it "returns the host" do
-      bookmark = Fabricate.build(:bookmark, url: "https://example.com/path")
-      assert_equal "example.com", bookmark.host
+      post = Fabricate.build(:post, url: "https://example.com/path")
+      assert_equal "example.com", post.host
     end
   end
 end
@@ -193,11 +193,11 @@ Favor explicit handling over silent failures. A user should see a clear error me
 
 **Example:**
 ```ruby
-# FRAGILE — blows up if bookmark is nil
-bookmark.tags.pluck(:name)
+# FRAGILE — blows up if post is nil
+post.tags.pluck(:name)
 
 # BETTER — handles the nil case
-bookmark&.tags&.pluck(:name) || []
+post&.tags&.pluck(:name) || []
 ```
 
 #### Performance review
@@ -211,12 +211,12 @@ Check for common Rails performance pitfalls in the changed code:
 
 **Example:**
 ```ruby
-# N+1 — each bookmark loads its tags separately
-@bookmarks = Bookmark.all
-@bookmarks.each { |b| b.tags.map(&:name) }
+# N+1 — each post loads its tags separately
+@posts = Post.all
+@posts.each { |b| b.tags.map(&:name) }
 
 # FIXED — eager load the association
-@bookmarks = Bookmark.includes(:tags).all
+@posts = Post.includes(:tags).all
 ```
 
 #### Documentation check
@@ -228,10 +228,10 @@ Scan each changed file for `def` (Ruby/Rake) or `function`/method declarations (
 **Ruby / Rake (`.rb`, `.rake`)** — plain comment above `def`:
 
 ```ruby
-# Ensures the user sees their most relevant bookmarks first,
+# Ensures the user sees their most relevant posts first,
 # because recently active tags reflect current interests.
-def prioritized_bookmarks
-  bookmarks.joins(:tags).order("tags.updated_at DESC")
+def prioritized_posts
+  posts.joins(:tags).order("tags.updated_at DESC")
 end
 ```
 
@@ -257,7 +257,7 @@ Scan any changed `.html.erb` files for inline variable assignments (`<% variable
 
 ```erb
 <%# WRONG — not testable %>
-<% tags = bookmark.tags.active.order(:name) %>
+<% tags = post.tags.active.order(:name) %>
 <% show_banner = current_account.trial? && current_account.days_remaining < 7 %>
 <% display_name = "#{user.first_name} #{user.last_name}".strip %>
 

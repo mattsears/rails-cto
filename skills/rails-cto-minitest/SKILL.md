@@ -42,10 +42,10 @@ Before writing or running tests, understand what's changed on this branch.
    This tells you which files were added or modified. Focus testing efforts on these files only.
 
 2. **Map changed files to test files.** For each changed `.rb` file, find its test counterpart:
-   - `app/models/bookmark.rb` → `test/models/bookmark_test.rb`
-   - `app/controllers/bookmarks_controller.rb` → `test/controllers/bookmarks_controller_test.rb`
-   - `app/commands/bookmarks/create.rb` → `test/commands/bookmarks/create_test.rb`
-   - `app/jobs/analyze_bookmark_job.rb` → `test/jobs/analyze_bookmark_job_test.rb`
+   - `app/models/post.rb` → `test/models/post_test.rb`
+   - `app/controllers/posts_controller.rb` → `test/controllers/posts_controller_test.rb`
+   - `app/commands/posts/create.rb` → `test/commands/posts/create_test.rb`
+   - `app/jobs/analyze_post_job.rb` → `test/jobs/analyze_post_job_test.rb`
    - `app/components/forms/combo_select.rb` → `test/components/forms/combo_select_test.rb`
 
 3. **Check for missing tests.** If a changed file has no corresponding test file, create one. New code ships with tests — no exceptions.
@@ -162,11 +162,11 @@ end
 
 ```ruby
 # ALSO WRONG — no subject, object created with a local variable
-class BookmarkTest < ActiveSupport::TestCase
+class PostTest < ActiveSupport::TestCase
   describe "#host" do
     it "returns the host from the URL" do
-      bookmark = Fabricate.build(:bookmark, url: "https://example.com/path")
-      assert_equal "example.com", bookmark.host
+      post = Fabricate.build(:post, url: "https://example.com/path")
+      assert_equal "example.com", post.host
     end
   end
 end
@@ -178,10 +178,10 @@ If every test uses the same attributes, define `subject` directly without the `l
 
 ```ruby
 # CORRECT — simple subject, no variations needed
-class BookmarkTest < ActiveSupport::TestCase
+class PostTest < ActiveSupport::TestCase
   let(:account) { Fabricate(:account) }
 
-  subject { Fabricate.build(:bookmark, owner: account, url: "https://example.com/path") }
+  subject { Fabricate.build(:post, owner: account, url: "https://example.com/path") }
 
   describe "#host" do
     it "returns the host from the URL" do
@@ -226,16 +226,16 @@ used in controller/integration tests that need accounts with subscriptions.
 
 ```ruby
 # Simple creation
-let(:bookmark) { Fabricate(:bookmark) }
+let(:post) { Fabricate(:post) }
 
 # With overrides
-let(:bookmark) { Fabricate(:bookmark, owner: account, title: "Custom") }
+let(:post) { Fabricate(:post, owner: account, title: "Custom") }
 
 # Build without saving
-bookmark = Fabricate.build(:bookmark, url: "https://example.com")
+post = Fabricate.build(:post, url: "https://example.com")
 
 # Named variants
-Fabricate(:pinned_bookmark)
+Fabricate(:pinned_post)
 Fabricate(:account_with_profile)
 ```
 
@@ -258,8 +258,8 @@ Extend `ActiveSupport::TestCase`. Test model methods, validations, callbacks, an
 Always define `subject` as an instance of the model being tested.
 
 ```ruby
-class BookmarkTest < ActiveSupport::TestCase
-  subject { Fabricate.build(:bookmark, url: "https://example.com/path") }
+class PostTest < ActiveSupport::TestCase
+  subject { Fabricate.build(:post, url: "https://example.com/path") }
 
   describe "#host" do
     it "returns the host from the URL" do
@@ -298,21 +298,21 @@ Commands use `.run()` and return result objects with `.success?` / `.failed?`.
 Wrap in the command's module namespace.
 
 ```ruby
-module Bookmarks
+module Posts
   class DestroyTest < ActiveSupport::TestCase
     let(:account) { Fabricate(:account) }
 
-    subject { Fabricate(:bookmark, owner: account) }
+    subject { Fabricate(:post, owner: account) }
 
     describe "#run" do
-      it "permanently deletes the bookmark" do
-        bookmark_id = subject.id
-        Bookmarks::Destroy.run(bookmark: subject)
-        assert_not Bookmark.exists?(bookmark_id)
+      it "permanently deletes the post" do
+        post_id = subject.id
+        Posts::Destroy.run(post: subject)
+        assert_not Post.exists?(post_id)
       end
 
       it "returns a successful result" do
-        result = Bookmarks::Destroy.run(bookmark: subject)
+        result = Posts::Destroy.run(post: subject)
         assert result.success?
       end
     end
@@ -366,23 +366,23 @@ Can use either `describe JobClass` directly or wrap in a class. Mock dependencie
 with Mocha.
 
 ```ruby
-describe AnalyzeFeedBookmarkJob do
-  let(:bookmark) { Fabricate(:bookmark) }
-  let(:job) { AnalyzeFeedBookmarkJob.new }
+describe AnalyzeFeedPostJob do
+  let(:post) { Fabricate(:post) }
+  let(:job) { AnalyzeFeedPostJob.new }
 
   describe "#perform" do
-    it "processes the bookmark" do
+    it "processes the post" do
       mock_result = mock
       mock_result.expects(:success?).returns(true)
       mock_result.expects(:summary).returns("A summary").at_least_once
 
       SomeService.expects(:run)
-        .with(bookmark: bookmark)
+        .with(post: post)
         .returns(mock_result)
 
-      job.perform(bookmark.id)
-      bookmark.reload
-      assert_equal "A summary", bookmark.summary
+      job.perform(post.id)
+      post.reload
+      assert_equal "A summary", post.summary
     end
 
     it "raises for missing records" do
@@ -465,12 +465,9 @@ job.stubs(:fetch_content).returns("text")
 
 ## HTTP Stubbing
 
-WebMock is configured globally. The test helper already stubs:
-- Meilisearch (`localhost:7700`)
-- OpenAI embeddings API (returns 1536-dim zero vector)
-- Anthropic Claude API (returns generic text)
-- HTTP HEAD requests (returns 200)
-- Proxy parser (`localhost:3100`, returns generic page metadata)
+Use WebMock to keep tests off the network. Any third-party service the app talks to — search engines, AI providers, payment processors, webhooks, internal APIs — should be stubbed in `test/test_helper.rb` so individual tests inherit safe defaults and never hit a real endpoint.
+
+Check `test_helper.rb` for the stubs already in place before writing new ones; duplicating a global stub in a single test usually means the test is fighting the helper.
 
 For additional HTTP stubs in individual tests:
 
@@ -510,7 +507,7 @@ Always run tests in parallel with code coverage enabled:
 
 ```bash
 COVERAGE=1 PARALLEL=1 rails test                              # Full suite
-COVERAGE=1 PARALLEL=1 rails test test/models/bookmark_test.rb # Single file
+COVERAGE=1 PARALLEL=1 rails test test/models/post_test.rb # Single file
 COVERAGE=1 PARALLEL=1 rails test -n "test_method_name"        # Single test by name
 ```
 

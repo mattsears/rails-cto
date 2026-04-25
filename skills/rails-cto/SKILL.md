@@ -72,8 +72,8 @@ When creating any implementation plan, always include `/rails-cto-qa` as a final
 4. [ ] **Run related tests** — `PARALLEL=1 COVERAGE=1 rails test` on all related test files. Do NOT skip tests
 5. [ ] **Remove debug statements** — Delete any `console.log`, `Rails.logger`, `puts`, `pp`, or `binding.pry` added during development
 6. [ ] **DRY** — Remove duplicate code and dead code that is no longer called
-7. [ ] **Update Pundit policies** — Add policy methods in `app/policies/` for any new controller actions
-8. [ ] **Register Stimulus controllers** — Add new controllers to `app/frontend/controllers/application.js`
+7. [ ] **Update authorization** — Add policy methods or equivalent checks for any new controller actions, using whichever authorization library the project uses
+8. [ ] **Register Stimulus controllers** — Add new controllers to the project's Stimulus application file (`app/javascript/controllers/application.js` by default, or wherever it lives)
 9. [ ] **Document methods** — Ruby: comment describing *why* the method exists. JS: JSDoc describing *why*
 10. [ ] **Light + dark mode** — If touching views, verify UI works in both modes
 11. [ ] **Git** — Confirm commit message with user first. Do not mention "Claude" or co-authorship

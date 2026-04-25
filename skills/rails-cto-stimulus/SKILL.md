@@ -13,9 +13,9 @@ description: >
 
 ## Reuse First, Create Second
 
-Before writing a new controller, search the existing controllers in `app/frontend/controllers/` and `app/components/` for one that already does what you need. Many behaviors are already covered — autosave, clipboard, redirect, sortable, hover toggling, reset form, and more live in `utils/`. Check `index.js` for the full inventory.
+Before writing a new controller, search the existing controllers in `app/javascript/controllers/` and `app/components/` for one that already does what you need. Many behaviors are already covered — autosave, clipboard, redirect, sortable, hover toggling, reset form, and more live in `utils/`. Check `index.js` for the full inventory.
 
-If no existing controller fits, design the new one for **general-purpose reuse**. Controllers should not be tightly coupled to a single view or feature. Keep behavior generic and configurable through values, targets, and action parameters so the same controller can be wired into different contexts without duplication. Place broadly reusable controllers in `utils/`; only use domain namespaces (`bookmarks/`, `feeds/`) when the behavior is truly domain-specific.
+If no existing controller fits, design the new one for **general-purpose reuse**. Controllers should not be tightly coupled to a single view or feature. Keep behavior generic and configurable through values, targets, and action parameters so the same controller can be wired into different contexts without duplication. Place broadly reusable controllers in `utils/`; only use domain namespaces (`posts/`, `feeds/`) when the behavior is truly domain-specific.
 
 ### NEVER create single-purpose controllers
 
@@ -25,12 +25,12 @@ Every Stimulus controller must be designed to work across multiple views and con
 
 | Task | WRONG (single-purpose) | RIGHT (reusable) |
 |---|---|---|
-| Save form when checkbox toggled | `bookmark_auto_check_controller.js` | `toggle_submit_controller.js` |
+| Save form when checkbox toggled | `post_auto_check_controller.js` | `toggle_submit_controller.js` |
 | Dismiss a flash message | `flash_close_controller.js` | `dismissable_controller.js` |
 | Copy text to clipboard on click | `share_link_copy_controller.js` | `clipboard_controller.js` |
 | Show/hide a section | `settings_panel_toggle_controller.js` | `toggle_element_controller.js` |
 | Submit form on input change | `search_auto_submit_controller.js` | `auto_submit_controller.js` |
-| Confirm before destructive action | `delete_bookmark_confirm_controller.js` | `confirm_action_controller.js` |
+| Confirm before destructive action | `delete_post_confirm_controller.js` | `confirm_action_controller.js` |
 
 **Drive specifics through values and targets, not hard-coded selectors:**
 
@@ -38,7 +38,7 @@ Every Stimulus controller must be designed to work across multiple views and con
 // WRONG — hard-coded to one specific form
 export default class extends Controller {
   save() {
-    document.querySelector("#bookmark-settings-form").requestSubmit();
+    document.querySelector("#post-settings-form").requestSubmit();
   }
 }
 
@@ -52,19 +52,19 @@ export default class extends Controller {
 }
 ```
 
-If you find yourself including a feature name (bookmark, user, feed, setting) in the controller filename, stop and rethink. The controller is probably too specific.
+If you find yourself including a feature name (post, user, feed, setting) in the controller filename, stop and rethink. The controller is probably too specific.
 
 ## File Layout
 
 ```
-app/frontend/controllers/
+app/javascript/controllers/
 ├── index.js                        # All registrations live here
 ├── application_controller.js       # Minimal base class
 ├── utils.js                        # Shared helper functions
 ├── transition.js                   # Reusable enter/leave transitions
 │
 ├── <name>_controller.js            # Root-level controllers
-├── bookmarks/                      # Domain-namespaced controllers
+├── posts/                      # Domain-namespaced controllers
 ├── users/
 ├── accounts/
 ├── stripe/
@@ -79,7 +79,7 @@ Every controller is manually imported and registered in `index.js`.
 There is no auto-loading — each new controller needs two lines added here.
 
 ```js
-// app/frontend/controllers/index.js
+// app/javascript/controllers/index.js
 import AutosaveController from "./utils/autosave_controller";
 application.register("utils--autosave", AutosaveController);
 ```
@@ -89,13 +89,13 @@ application.register("utils--autosave", AutosaveController);
 | Controller location | Identifier pattern | Example |
 |---|---|---|
 | `utils/autosave_controller.js` | `utils--autosave` | Double-dash separates namespace |
-| `bookmarks/list_reorder_controller.js` | `bookmarks--list-reorder` | Underscores become hyphens |
+| `posts/list_reorder_controller.js` | `posts--list-reorder` | Underscores become hyphens |
 | `reader_controller.js` (root) | `reader` | No namespace prefix |
 | `app/components/overlays/modal_controller.js` | `overlays--modal` | Components use their directory |
 
 ## Controller Structure
 
-Follow this order inside every controller. See `app/frontend/controllers/utils/autosave_controller.js` as a compact reference:
+Follow this order inside every controller. See `app/javascript/controllers/utils/autosave_controller.js` as a compact reference:
 
 ```js
 import { Controller } from "@hotwired/stimulus";
@@ -168,7 +168,7 @@ save() { /* ... */ }
 **Multiple controllers on one element** — space-separated:
 
 ```erb
-<div data-controller="hover-toggler app--bookmark">
+<div data-controller="hover-toggler app--post">
 ```
 
 ## Values
@@ -216,16 +216,16 @@ summarize() {
 
 ```js
 // Dispatch
-document.dispatchEvent(new CustomEvent("bookmark:drag-start", { detail: { id } }));
+document.dispatchEvent(new CustomEvent("post:drag-start", { detail: { id } }));
 
 // Listen (bind in connect, remove in disconnect)
 connect() {
   this.onDragStart = this.#handleDragStart.bind(this);
-  document.addEventListener("bookmark:drag-start", this.onDragStart);
+  document.addEventListener("post:drag-start", this.onDragStart);
 }
 
 disconnect() {
-  document.removeEventListener("bookmark:drag-start", this.onDragStart);
+  document.removeEventListener("post:drag-start", this.onDragStart);
 }
 ```
 
@@ -380,9 +380,9 @@ If Vitest is not available, skip the testing sections below but still flag that 
 
 Every new or modified Stimulus controller must have a corresponding test file. Map by convention:
 
-- `app/frontend/controllers/utils/autosave_controller.js` → `test/javascript/utils/autosave_controller.test.js`
-- `app/frontend/controllers/bookmarks/list_reorder_controller.js` → `test/javascript/bookmarks/list_reorder_controller.test.js`
-- `app/frontend/controllers/reader_controller.js` → `test/javascript/reader_controller.test.js`
+- `app/javascript/controllers/utils/autosave_controller.js` → `test/javascript/utils/autosave_controller.test.js`
+- `app/javascript/controllers/posts/list_reorder_controller.js` → `test/javascript/posts/list_reorder_controller.test.js`
+- `app/javascript/controllers/reader_controller.js` → `test/javascript/reader_controller.test.js`
 - `app/components/overlays/modal_controller.js` → `test/javascript/components/overlays/modal_controller.test.js`
 
 If the test file does not exist, create it.
@@ -457,7 +457,7 @@ When working on Stimulus controllers, also invoke `/better-stimulus@obie-skills`
 
 1. **Search existing controllers first** — check `utils/`, `app/components/`, and `index.js` for something reusable
 2. Design for reuse — keep behavior generic, drive specifics through values and targets
-3. Create `app/frontend/controllers/<namespace>/<name>_controller.js`
+3. Create `app/javascript/controllers/<namespace>/<name>_controller.js`
 4. Add import + `application.register()` to `index.js`
 5. Use the identifier in your ERB with `data-controller="namespace--name"`
 6. Declare only the static properties you actually use

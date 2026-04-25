@@ -96,8 +96,8 @@ bundle exec herb format path/to/changed_file.html.erb
 For multiple files:
 
 ```bash
-bundle exec herb --fix app/views/bookmarks/index.html.erb app/views/bookmarks/_bookmark.html.erb
-bundle exec herb format app/views/bookmarks/index.html.erb app/views/bookmarks/_bookmark.html.erb
+bundle exec herb --fix app/views/posts/index.html.erb app/views/posts/_post.html.erb
+bundle exec herb format app/views/posts/index.html.erb app/views/posts/_post.html.erb
 ```
 
 Review the output for any issues that couldn't be auto-fixed — these need manual attention. **Fix ALL warnings in the file, not just ones you introduced.** If Herb reports pre-existing issues unrelated to your changes, fix them anyway. Every file you touch should be left with zero Herb warnings.
@@ -111,14 +111,14 @@ When an HTML element has more than one attribute, break each attribute onto its 
 ```erb
 <%# CORRECT — attributes aligned vertically %>
 <div class="pane-field-group"
-     data-controller="bookmarks--tag-sync"
-     data-bookmarks--tag-sync-url-value="<%= sync_bookmark_taggings_path(bookmark) %>"
-     data-action="forms--combo-select:change->bookmarks--tag-sync#sync">
+     data-controller="posts--tag-sync"
+     data-posts--tag-sync-url-value="<%= sync_post_taggings_path(post) %>"
+     data-action="forms--combo-select:change->posts--tag-sync#sync">
 ```
 
 ```erb
 <%# WRONG — everything crammed on one line %>
-<div class="pane-field-group" data-controller="bookmarks--tag-sync" data-bookmarks--tag-sync-url-value="<%= sync_bookmark_taggings_path(bookmark) %>" data-action="forms--combo-select:change->bookmarks--tag-sync#sync">
+<div class="pane-field-group" data-controller="posts--tag-sync" data-posts--tag-sync-url-value="<%= sync_post_taggings_path(post) %>" data-action="forms--combo-select:change->posts--tag-sync#sync">
 ```
 
 A single-attribute element can stay on one line:
@@ -132,17 +132,17 @@ A single-attribute element can stay on one line:
 For ViewComponent and partial renders with multiple arguments, align parameters with the opening parenthesis:
 
 ```erb
-<%= render(Forms::EditableField.new(model: bookmark,
+<%= render(Forms::EditableField.new(model: post,
                                     field_type: :text,
                                     attribute: :title,
-                                    url: bookmark_url,
+                                    url: post_url,
                                     field_arguments: { class: "text-base font-medium" })) %>
 ```
 
 For `form_with` and similar helpers:
 
 ```erb
-<%= form_with(model: bookmark, method: :patch,
+<%= form_with(model: post, method: :patch,
               class: "space-y-5",
               data: { controller: "utils--autosave" }) do |f| %>
 ```
@@ -198,21 +198,21 @@ Any `<% variable = ... %>` line in ERB (other than `local_assigns.fetch`) is wro
 
 ```erb
 <%# WRONG — inline variables are not testable %>
-<% tags = bookmark.tags.where(account_id: current_account.id).order(:name) %>
-<% bookmark_count = current_account.bookmarks.count %>
+<% tags = post.tags.where(account_id: current_account.id).order(:name) %>
+<% post_count = current_account.posts.count %>
 <% suggested = Tag.where(category: :interest).limit(8) %>
 <% display_name = "#{user.first_name} #{user.last_name}".strip %>
 <% show_banner = current_account.trial? && current_account.days_remaining < 7 %>
 
 <%# RIGHT — instance variables from the controller, testable in controller tests %>
 <%= render partial: "tag", collection: @tags %>
-<%= @bookmark_count %>
+<%= @post_count %>
 <%= current_account.display_name %>
 <%= render "shared/trial_banner" if @show_trial_banner %>
 ```
 
 When you see an inline variable in ERB, move it:
-- **Data/queries** → controller sets an instance variable (`@tags`, `@bookmark_count`)
+- **Data/queries** → controller sets an instance variable (`@tags`, `@post_count`)
 - **Formatting/display** → model method (`user.display_name`) or helper (`format_count(total)`)
 - **Conditional flags** → controller sets a boolean instance variable (`@show_trial_banner`)
 - **Computed values** → model method or concern (`account.days_remaining_display`)
@@ -221,12 +221,12 @@ When you see an inline variable in ERB, move it:
 
 ```erb
 <%# WRONG — arithmetic in the template, inline styles %>
-<span><%= (bookmark.reading_time / 60.0).ceil %> min read</span>
+<span><%= (post.reading_time / 60.0).ceil %> min read</span>
 <span><%= ((completed.to_f / total) * 100).round %>% complete</span>
 <div style="width: <%= (tag.taggings_count.to_f / max_count * 100).round %>%">
 
 <%# RIGHT — computed in controller or model, Tailwind classes instead of inline styles %>
-<span><%= bookmark.reading_time_display %></span>
+<span><%= post.reading_time_display %></span>
 <span><%= @completion_percentage %>% complete</span>
 <div class="<%= tag.weight_class %>">
 ```
@@ -245,10 +245,10 @@ When you see an inline variable in ERB, move it:
 
 ```erb
 <%# WRONG — formatting logic in the template %>
-<span><%= bookmark.url.gsub(/^https?:\/\//, '').truncate(40) %></span>
+<span><%= post.url.gsub(/^https?:\/\//, '').truncate(40) %></span>
 
 <%# RIGHT — use a helper or model method %>
-<span><%= bookmark.display_url %></span>
+<span><%= post.display_url %></span>
 ```
 
 ### Acceptable local defaults
@@ -357,12 +357,12 @@ Always 2 spaces. Nested elements increase indentation by one level:
 Indent content inside `<% if %>` blocks:
 
 ```erb
-<% if @bookmark.feed.present? %>
+<% if @post.feed.present? %>
   <div class="pane-field-group">
     <label class="pane-field-label">Source</label>
     <div class="flex items-center gap-2">
       <%= inline_icon(:lucide_rss, "w-4 h-4") %>
-      <span class="truncate"><%= @bookmark.feed.name %></span>
+      <span class="truncate"><%= @post.feed.name %></span>
     </div>
   </div>
 <% end %>
@@ -398,7 +398,7 @@ Keep classes on the same line as `class=` unless the line exceeds ~100 character
 `<% end %>` aligns with its opening `<% if %>`, `<% each %>`, or `<%= form_with %>`:
 
 ```erb
-<%= form_with(model: @bookmark) do |f| %>
+<%= form_with(model: @post) do |f| %>
   <%= f.text_field :title %>
 <% end %>
 ```
@@ -414,7 +414,7 @@ Use `<%# ... %>` for comments. Place them immediately before the element or sect
 <div class="pane-field-group">
 
 <%# Collection %>
-<%= form_with(model: bookmark) do |f| %>
+<%= form_with(model: post) do |f| %>
 ```
 
 Use multi-line ERB comments for file headers and documentation:
@@ -457,9 +457,9 @@ Order: `class` first, then `data-controller`, then `data-*-value`, then `data-*-
 ```
 
 ```erb
-<%= turbo_stream.replace dom_id(@bookmark) do %>
-  <%= render partial: "bookmarks/bookmark",
-             locals: { bookmark: @bookmark } %>
+<%= turbo_stream.replace dom_id(@post) do %>
+  <%= render partial: "posts/post",
+             locals: { post: @post } %>
 <% end %>
 ```
 
@@ -487,7 +487,7 @@ Avoid duplicating markup across views. If the same UI pattern appears in more th
 <%# WRONG — same card markup copy-pasted in index.html.erb and show.html.erb %>
 
 <%# RIGHT — extract to a shared partial %>
-<%= render partial: "bookmarks/bookmark_card", locals: { bookmark: bookmark } %>
+<%= render partial: "posts/post_card", locals: { post: post } %>
 ```
 
 ## Quick Reference: Do vs Don't
@@ -495,7 +495,7 @@ Avoid duplicating markup across views. If the same UI pattern appears in more th
 | Do | Don't |
 |---|---|
 | Set `@suggested_tags` in the controller | Query `Tag.where(...)` in ERB |
-| Use `bookmark.reading_time_display` | Write `(bookmark.reading_time / 60.0).ceil` in ERB |
+| Use `post.reading_time_display` | Write `(post.reading_time / 60.0).ceil` in ERB |
 | Align attributes vertically | Cram 4+ attributes on one line |
 | Use `<%# ... %>` for comments | Use `<!-- -->` for documentation |
 | Put local defaults at top of partial | Scatter variable assignments throughout |

@@ -18,7 +18,7 @@ Rails controllers should be thin orchestrators — they receive a request, deleg
 
 1. **Stick to the 7.** `index`, `show`, `new`, `edit`, `create`, `update`, `destroy` — nothing else.
 2. **Order matters.** Always define actions in this order: index, show, new, edit, create, update, destroy.
-3. **Document each action.** Every action gets a one-line comment showing its HTTP verb and route (e.g. `# GET /bookmarks/:id`).
+3. **Document each action.** Every action gets a one-line comment showing its HTTP verb and route (e.g. `# GET /posts/:id`).
 4. **Extract, don't extend.** Need a custom action? Make a new controller under a namespace.
 5. **Load resources in before_action.** Set instance variables via callbacks, not inside each action.
 6. **Use service objects for complexity.** Simple saves can stay inline; multi-step logic goes to commands.
@@ -46,47 +46,47 @@ Each action gets a one-line comment documenting its HTTP verb and route:
 ```ruby
 # frozen_string_literal: true
 
-class BookmarksController < ApplicationController
+class PostsController < ApplicationController
   before_action :authenticate
-  before_action :set_bookmark, only: [:show, :edit, :update, :destroy]
+  before_action :set_post, only: [:show, :edit, :update, :destroy]
 
-  # GET /bookmarks
+  # GET /posts
   def index
-    @bookmarks = Bookmarks::Search.run(account: current_account, params: params)
+    @posts = Posts::Search.run(account: current_account, params: params)
     respond_to(:turbo_stream, :html)
   end
 
-  # GET /bookmarks/:id
+  # GET /posts/:id
   def show
     respond_to(:turbo_stream, :html)
   end
 
-  # GET /bookmarks/new
+  # GET /posts/new
   def new
-    @bookmark = Bookmark.new
+    @post = Post.new
     respond_to(:turbo_stream, :html)
   end
 
-  # GET /bookmarks/:id/edit
+  # GET /posts/:id/edit
   def edit
     respond_to(:turbo_stream, :html)
   end
 
-  # POST /bookmarks
+  # POST /posts
   def create
-    result = Bookmarks::Create.call(params: bookmark_params, account: current_account)
+    result = Posts::Create.call(params: post_params, account: current_account)
 
     if result.success?
-      @bookmark = result.bookmark
+      @post = result.post
       respond_to(:turbo_stream, :html)
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH /bookmarks/:id
+  # PATCH /posts/:id
   def update
-    result = Bookmarks::Update.run(bookmark: @bookmark, params: bookmark_params.to_h)
+    result = Posts::Update.run(post: @post, params: post_params.to_h)
 
     if result.success?
       respond_to(:turbo_stream, :html)
@@ -95,20 +95,20 @@ class BookmarksController < ApplicationController
     end
   end
 
-  # DELETE /bookmarks/:id
+  # DELETE /posts/:id
   def destroy
-    @bookmark.discard!
+    @post.discard!
     respond_to(:turbo_stream, :html)
   end
 
   private
 
-  def set_bookmark
-    @bookmark = current_account.bookmarks.find(params[:id])
+  def set_post
+    @post = current_account.posts.find(params[:id])
   end
 
-  def bookmark_params
-    params.require(:bookmark).permit(:title, :url, :description, :collection_id)
+  def post_params
+    params.require(:post).permit(:title, :url, :description, :collection_id)
   end
 end
 ```
@@ -124,13 +124,13 @@ If an action doesn't fit the standard 7, it belongs in its own controller under 
 Think of the extra behavior as a **noun**, then create a controller for that noun:
 
 ```
-# Instead of adding `archive` and `unarchive` actions to BookmarksController:
-#   WRONG: bookmarks#archive, bookmarks#unarchive
+# Instead of adding `archive` and `unarchive` actions to PostsController:
+#   WRONG: posts#archive, posts#unarchive
 #
 # Create separate controllers for the concept:
-#   RIGHT: bookmarks/archives#new      (GET  — confirmation UI)
-#   RIGHT: bookmarks/archives#destroy   (DELETE — perform archive)
-#   RIGHT: bookmarks/unarchives#update  (PATCH — undo archive)
+#   RIGHT: posts/archives#new      (GET  — confirmation UI)
+#   RIGHT: posts/archives#destroy   (DELETE — perform archive)
+#   RIGHT: posts/unarchives#update  (PATCH — undo archive)
 ```
 
 ### Real Examples From This Codebase
@@ -147,13 +147,13 @@ app/controllers/
     └── activities_controller.rb            # show — activity feed widget
 ```
 
-**BookmarksController** with its nested resources:
+**PostsController** with its nested resources:
 
 ```
 app/controllers/
-├── bookmarks_controller.rb                # standard 7 + pane_preview, pane_read
-└── bookmarks/
-    ├── archives_controller.rb             # new, destroy — archive a bookmark
+├── posts_controller.rb                # standard 7 + pane_preview, pane_read
+└── posts/
+    ├── archives_controller.rb             # new, destroy — archive a post
     ├── unarchives_controller.rb           # update — restore from archive
     ├── read_controller.rb                 # show, create, update, destroy — reading state
     ├── visit_controller.rb                # show — redirect to URL + track visit
@@ -169,12 +169,12 @@ Turn the verb into a noun. The noun becomes the controller:
 
 | Verb / Action           | Noun / Controller            | Actions Used            |
 |-------------------------|------------------------------|-------------------------|
-| Archive a bookmark      | `Bookmarks::ArchivesController`    | `new`, `destroy`  |
-| Unarchive a bookmark    | `Bookmarks::UnarchivesController`  | `update`          |
-| Visit / redirect        | `Bookmarks::VisitController`       | `show`            |
-| Set a reminder          | `Bookmarks::RemindersController`   | `create`, `destroy` |
-| Mark as read            | `Bookmarks::ReadController`        | `show`, `create`, `update`, `destroy` |
-| Sync tags               | `Bookmarks::TaggingsController`    | `update`, `destroy` + `sync` collection action |
+| Archive a post      | `Posts::ArchivesController`    | `new`, `destroy`  |
+| Unarchive a post    | `Posts::UnarchivesController`  | `update`          |
+| Visit / redirect        | `Posts::VisitController`       | `show`            |
+| Set a reminder          | `Posts::RemindersController`   | `create`, `destroy` |
+| Mark as read            | `Posts::ReadController`        | `show`, `create`, `update`, `destroy` |
+| Sync tags               | `Posts::TaggingsController`    | `update`, `destroy` + `sync` collection action |
 | Refresh a feed          | would be `Feeds::RefreshesController` | `create`       |
 | Toggle all feeds        | would be `Feeds::TogglesController`   | `update`       |
 
@@ -183,30 +183,30 @@ Turn the verb into a noun. The noun becomes the controller:
 ```ruby
 # frozen_string_literal: true
 
-# Handles archiving a bookmark — extracted from BookmarksController
+# Handles archiving a post — extracted from PostsController
 # because "archive" is not one of the standard 7 REST actions.
-class Bookmarks::ArchivesController < ApplicationController
+class Posts::ArchivesController < ApplicationController
   before_action :authenticate
-  before_action :set_bookmark, only: [:new, :destroy]
+  before_action :set_post, only: [:new, :destroy]
 
-  # GET /bookmarks/:id/archives
+  # GET /posts/:id/archives
   def new
     respond_to(:turbo_stream, :html)
   end
 
-  # DELETE /bookmarks/:id/archives
+  # DELETE /posts/:id/archives
   def destroy
-    command = Bookmarks::Archive.run(bookmark: @bookmark)
+    command = Posts::Archive.run(post: @post)
 
     if command.success?
-      render turbo_stream: destroy_streams_for(@bookmark)
+      render turbo_stream: destroy_streams_for(@post)
     end
   end
 
   private
 
-  def set_bookmark
-    @bookmark = Bookmark.includes(:collection).find(params[:id])
+  def set_post
+    @post = Post.includes(:collection).find(params[:id])
   end
 end
 ```
@@ -220,10 +220,10 @@ Two patterns exist. Choose based on whether you need the parent's filters:
 ### Inherit from parent (when you need its `before_action` filters)
 
 ```ruby
-# Reuses BookmarksController's set_bookmark, set_tag_suggestions, etc.
-class Bookmarks::ReadController < BookmarksController
+# Reuses PostsController's set_post, set_tag_suggestions, etc.
+class Posts::ReadController < PostsController
   before_action :authenticate
-  before_action :set_bookmark
+  before_action :set_post
   before_action :set_tag_suggestions, only: [:info]
 end
 ```
@@ -231,15 +231,15 @@ end
 ### Inherit from ApplicationController (when you don't)
 
 ```ruby
-# Defines its own set_bookmark with different includes
-class Bookmarks::ArchivesController < ApplicationController
+# Defines its own set_post with different includes
+class Posts::ArchivesController < ApplicationController
   before_action :authenticate
-  before_action :set_bookmark
+  before_action :set_post
 
   private
 
-  def set_bookmark
-    @bookmark = Bookmark.includes(:collection).find(params[:id])
+  def set_post
+    @post = Post.includes(:collection).find(params[:id])
   end
 end
 ```
@@ -265,24 +265,24 @@ resources :feeds do
 end
 
 # Nested resources — clean extraction
-resources :bookmarks do
-  resources :taggings, controller: "bookmarks/taggings" do
+resources :posts do
+  resources :taggings, controller: "posts/taggings" do
     collection do
       patch :sync
     end
   end
 
   member do
-    get "archives",     to: "bookmarks/archives#new"
-    delete "archives",  to: "bookmarks/archives#destroy"
-    patch "unarchives", to: "bookmarks/unarchives#update"
-    get "visit",        to: "bookmarks/visit#show"
-    get "read",         to: "bookmarks/read#show"
-    post "read",        to: "bookmarks/read#create"
-    patch "read",       to: "bookmarks/read#update"
-    delete "read",      to: "bookmarks/read#destroy"
-    post "reminders",   to: "bookmarks/reminders#create"
-    delete "reminders", to: "bookmarks/reminders#destroy"
+    get "archives",     to: "posts/archives#new"
+    delete "archives",  to: "posts/archives#destroy"
+    patch "unarchives", to: "posts/unarchives#update"
+    get "visit",        to: "posts/visit#show"
+    get "read",         to: "posts/read#show"
+    post "read",        to: "posts/read#create"
+    patch "read",       to: "posts/read#update"
+    delete "read",      to: "posts/read#destroy"
+    post "reminders",   to: "posts/reminders#create"
+    delete "reminders", to: "posts/reminders#destroy"
   end
 end
 ```
@@ -330,7 +330,7 @@ Order filters from broadest to most specific:
 
 ```ruby
 before_action :authenticate                                    # 1. Auth (always first)
-before_action :set_bookmark, only: [:show, :edit, :update]     # 2. Load resource
+before_action :set_post, only: [:show, :edit, :update]     # 2. Load resource
 before_action :set_scope, only: [:index]                       # 3. Set context/scope
 before_action :set_tag_suggestions, only: [:pane_preview]      # 4. Feature-specific data
 ```
@@ -341,39 +341,39 @@ Instance variables shared across actions should be loaded via `before_action` ca
 
 ```ruby
 # CORRECT — load once, use in many actions
-before_action :set_bookmark, only: [:show, :edit, :update, :destroy, :pane_preview]
+before_action :set_post, only: [:show, :edit, :update, :destroy, :pane_preview]
 
-# GET /bookmarks/:id
+# GET /posts/:id
 def show
   respond_to(:turbo_stream, :html)
 end
 
-# GET /bookmarks/:id/edit
+# GET /posts/:id/edit
 def edit
   respond_to(:turbo_stream, :html)
 end
 
 private
 
-def set_bookmark
-  @bookmark = current_account.bookmarks.find(params[:id])
+def set_post
+  @post = current_account.posts.find(params[:id])
 end
 ```
 
 ```ruby
 # WRONG — loading the same resource in every action
 def show
-  @bookmark = current_account.bookmarks.find(params[:id])
+  @post = current_account.posts.find(params[:id])
   respond_to(:turbo_stream, :html)
 end
 
 def edit
-  @bookmark = current_account.bookmarks.find(params[:id])
+  @post = current_account.posts.find(params[:id])
   respond_to(:turbo_stream, :html)
 end
 
 def update
-  @bookmark = current_account.bookmarks.find(params[:id])
+  @post = current_account.posts.find(params[:id])
   # ...
 end
 ```
@@ -382,8 +382,8 @@ end
 
 ```ruby
 # CORRECT — scoped to the authenticated user
-def set_bookmark
-  @bookmark = current_account.bookmarks.find(params[:id])
+def set_post
+  @post = current_account.posts.find(params[:id])
 end
 
 def set_collection
@@ -391,8 +391,8 @@ def set_collection
 end
 
 # WRONG — unscoped, any user could access any record
-def set_bookmark
-  @bookmark = Bookmark.find(params[:id])
+def set_post
+  @post = Post.find(params[:id])
 end
 ```
 
@@ -431,11 +431,11 @@ When a single action needs to update multiple parts of the UI, return an array o
 
 ```ruby
 def destroy
-  @bookmark.discard!
+  @post.discard!
 
   render turbo_stream: [
-    turbo_stream.remove(dom_id(@bookmark)),
-    turbo_stream.update("bookmark_pane", html: ""),
+    turbo_stream.remove(dom_id(@post)),
+    turbo_stream.update("post_pane", html: ""),
     turbo_stream.update(dom_id(current_account, :reading_list),
                         partial: "layouts/reading_list_count")
   ]
@@ -452,16 +452,16 @@ Simple one-liner operations can stay in the controller. Once an action involves 
 
 ```ruby
 # Simple — no service needed
-# DELETE /bookmarks/:id
+# DELETE /posts/:id
 def destroy
-  @bookmark.discard!
+  @post.discard!
   respond_to(:turbo_stream, :html)
 end
 
 # Simple toggle — one attribute update
-# PATCH /bookmarks/:id
+# PATCH /posts/:id
 def update
-  @bookmark.update!(bookmark_params)
+  @post.update!(post_params)
   respond_to(:turbo_stream, :html)
 end
 ```
@@ -474,24 +474,24 @@ Instead of adding private helper methods to controllers, always prefer service o
 # WRONG — private helper method in controller
 private
 
-def process_and_archive(bookmark)
-  bookmark.update!(archived: true)
-  ArchiveNotificationJob.perform_later(bookmark)
-  bookmark.tags.each(&:update_counts!)
+def process_and_archive(post)
+  post.update!(archived: true)
+  ArchiveNotificationJob.perform_later(post)
+  post.tags.each(&:update_counts!)
 end
 
 # RIGHT — extract to a service object
-result = Bookmarks::Archive.run(bookmark: @bookmark)
+result = Posts::Archive.run(post: @post)
 ```
 
 ```ruby
 # Complex — multiple steps, side effects, external calls
-# POST /bookmarks
+# POST /posts
 def create
-  result = Bookmarks::Create.call(params: bookmark_params, account: current_account)
+  result = Posts::Create.call(params: post_params, account: current_account)
 
   if result.success?
-    @bookmark = result.bookmark
+    @post = result.post
     respond_to(:turbo_stream, :html)
   else
     render :new, status: :unprocessable_entity
@@ -503,13 +503,13 @@ All service objects must inherit from `ApplicationService`. Commands live in `ap
 
 ```ruby
 # Commands use .run() — returns result with .success? and outputs
-result = Bookmarks::Archive.run(bookmark: @bookmark)
+result = Posts::Archive.run(post: @post)
 result.success?  # => true/false
 result.errors    # => error object with .message_list
 
 # Commands can also use .call()
-command = Bookmarks::Create.call(params: bookmark_params, account: current_account)
-command.bookmark  # => the created record
+command = Posts::Create.call(params: post_params, account: current_account)
+command.post  # => the created record
 ```
 
 ### Signs you need a service object
@@ -636,7 +636,7 @@ end
 - Use `as: :turbo_stream` for Turbo Stream requests
 - Use `let` blocks for test data, `before` for authentication
 - Nest tests in `test/controllers/` matching the controller directory structure
-- For nested controllers: `test/controllers/bookmarks/archives_controller_test.rb`
+- For nested controllers: `test/controllers/posts/archives_controller_test.rb`
 
 ---
 
@@ -644,14 +644,14 @@ end
 
 | Do | Don't |
 |---|---|
-| Extract `archive` to `Bookmarks::ArchivesController` | Add `def archive` to `BookmarksController` |
+| Extract `archive` to `Posts::ArchivesController` | Add `def archive` to `PostsController` |
 | Define actions in order: index, show, new, edit, create, update, destroy | Put destroy before show or mix the order |
-| Add `# GET /bookmarks/:id` above each action | Leave actions undocumented |
-| Load `@bookmark` in `before_action :set_bookmark` | Set `@bookmark = ...` inside each action |
+| Add `# GET /posts/:id` above each action | Leave actions undocumented |
+| Load `@post` in `before_action :set_post` | Set `@post = ...` inside each action |
 | Use the standard 7 actions | Add `def toggle`, `def refresh`, `def duplicate` |
-| Keep `@bookmark.discard!` inline (simple) | Extract a one-liner to a service object |
-| Use `Bookmarks::Create.run(...)` for multi-step logic | Write 20 lines of create logic in the controller |
-| Scope with `current_account.bookmarks.find(id)` | Use `Bookmark.find(id)` without scoping |
+| Keep `@post.discard!` inline (simple) | Extract a one-liner to a service object |
+| Use `Posts::Create.run(...)` for multi-step logic | Write 20 lines of create logic in the controller |
+| Scope with `current_account.posts.find(id)` | Use `Post.find(id)` without scoping |
 | Write controller tests that assert response codes | Test business logic in controller tests |
 | Return arrays of turbo streams for multi-update | Use `redirect_to` for everything |
 | Keep `pane_preview` on parent (it's still `show`) | Add `pane_archive` as a custom pane action |

@@ -227,94 +227,31 @@ When multiple valid approaches exist, choose based on:
 - Make assumptions - verify with existing code
 
 **ALWAYS**:
-- Confirm with me before committing working code to Git
+- Confirm with the user before committing working code to Git
 - Update plan documentation as you go
 - Learn from existing implementations
 - Stop after 3 failed attempts and reassess
 
-## Development Environment
+## Project Conventions
 
-This is a Rails 8 application running locally at `http://[project].test` with `ngnix` running on
-port 80 `proxy_pass` to a Puma server running on `http://localhost:4025`.
+Read the project before writing code. Look for what's already there and follow it — don't impose patterns the rest of the codebase doesn't use.
 
-```bash
-
-# Setup (first time)
-rails db:setup
-rails meilisearch:reindex
-
-# Development workflow
-PARALLEL=1 COVERAGE=1 rails test  # Run full test suite
-rails console          # Rails console
-
-# Asset compilation
-yarn build:css             # Build CSS with Tailwind
-yarn build                     # Build JavaScript with esbuild
-```
-
-## Architecture
-
-###  Project Context & Dependencies
-
-- **Rails Version**: 8.0.x
-- **Styling**: TailwindCSS (no additional CSS frameworks)
-- **Linting**: After generation, run `bundle exec rubocop --auto-correct` to enforce style conventions
-- **Testing**: Use `Minitest::Spec` DSL. Generated specs should live alongside code under `test/`.
-- **JavaScript**: Only StimulusJS and Turbo Drive/Streams; avoid external libraries unless explicitly requested.
-- **File Structure**:
-  * Controllers → `app/controllers/`
-  * Models → `app/models/`
-  * Views → `app/views/`
-  * Stimulus controllers → `app/frontend/controllers/`
-  * Styles → `app/frontend/stylesheets/` (Tailwind config in `tailwind.config.js`)
-
-### Core Domain Models
-- **Company**: Data center providers with `visibility_status` (published/unpublished/obscured)
-- **Site**: Individual data center facilities with technical specifications
-- **Region**: Geographic areas containing multiple sites
-- **User**: Authentication with company associations and role-based permissions
-
-### Key Relationships
-- Companies ↔ Sites (1:many)
-- Regions ↔ Sites (1:many)
-- Companies ↔ Regions (many:many via company_regions)
-- Polymorphic associations: Comments, Reviews, Assets, Posts
-
-### Tech Stack
-- **Rails 8** with Hotwire (Turbo + Stimulus)
-- **PostgreSQL** with hstore extension
-- **Meilisearch** for full-text search
-- **TailwindCSS** for styling
-- **GoodJob** for background processing
-- **Pundit** for authorization
+- **Rails version** — match what's in the Gemfile; don't assume the latest
+- **Styling** — check `app/assets/`, `app/frontend/`, or wherever stylesheets live; follow whatever framework is already in use
+- **JavaScript** — check `app/javascript/` or `app/frontend/`; default to Stimulus + Turbo unless the project clearly uses something else
+- **Testing** — match the project's choice of Minitest or RSpec and its directory layout
+- **Linting and formatting** — follow `.rubocop.yml`, `.reek.yml`, and any `.herb/` rules already present
+- **Background jobs, search, auth, authorization** — check the Gemfile and `config/` before introducing a new gem; existing infrastructure beats new infrastructure
 
 ### Formatting & Output Conventions
 
 - **Code Blocks**: Wrap code in properly annotated fences (`ruby, `erb, \`\`\`js).
-- **File Headers**: Include a comment header with path and timestamp:
+- **File Headers**: Every Ruby file starts with the frozen string literal magic comment:
 
   ```ruby
   # frozen_string_literal: true
-  #
   ```
 - **No Extraneous Text**: The response should start immediately with code or file directives—no apologies or filler.
-
-## Frontend Architecture
-
-### Stimulus Controllers
-50+ custom controllers in `app/frontend/controllers/`. Key patterns:
-- `*_controller.js` for interactive components (maps, forms, search)
-- Third-party integrations: datepicker, dropzone, charts
-- Follow Stimulus conventions with `data-*` attributes
-
-### Styling
-- **TailwindCSS** as primary framework
-- Custom design system in `app/frontend/stylesheets/`
-- Component-based CSS organization
-- Build process: PostCSS → Tailwind → esbuild
-
-
-
 
 
 ## Testing
@@ -361,19 +298,20 @@ PARALLEL=1 COVERAGE=1 rails test -n "test_method_name"        # Single test
 
 ## Service Objects
 
-Follow light-services (https://github.com/light-ruby/light-services) pattern in `app/services/`:
+Follow the light-services (https://github.com/light-ruby/light-services) pattern in `app/services/`. Namespace by domain so related services group together:
 
 ```ruby
 # Namespace organization
-Services::Companies::Create
-Services::Posts::Update
-Services::Search::SitesQuery
+Services::<Resource>::Create
+Services::<Resource>::Update
+Services::Search::<Resource>Query
 ```
 
 ### Common Services
-- **Stats calculators**: Company/region analytics
-- **Import/Export**: CSV operations for bulk data
-- **Search**: Meilisearch query builders
+
+- **Calculators / aggregators** for analytics and reporting
+- **Importers / exporters** for CSV and bulk data work
+- **Search query builders** that wrap whichever search engine the project uses
 
 ## Database Operations
 
@@ -386,7 +324,8 @@ rails db:migrate:status
 
 ## Background Jobs
 
-Using GoodJob (PostgreSQL-based):
+Use ActiveJob with whichever queue adapter the project has configured (Solid Queue, GoodJob, Sidekiq, etc. — check `config/application.rb` or the Gemfile):
+
 ```ruby
 # Define jobs in app/jobs/
 class ExampleJob < ApplicationJob
@@ -401,20 +340,11 @@ ExampleJob.perform_later(args)
 
 ## Search Integration
 
-Meilisearch indexes: sites, companies, regions, posts
-```ruby
-# Reindex after model changes
-rails meilisearch:reindex
-
-# Search implementation in app/services/search/
-```
+If the project uses a search engine (Elasticsearch, Meilisearch, OpenSearch, pg_search, etc.), follow the existing patterns in `app/services/search/` or wherever the integration lives. Re-index when models change.
 
 ## File Uploads
 
-Dual system: Carrierwave + Active Storage
-- **Carrierwave**: Legacy uploads (logos, images)
-- **Active Storage**: New file attachments
-- Image processing with MiniMagick
+Use whatever upload library is already wired up — Active Storage by default in Rails 8, or Carrierwave / Shrine if the project uses one. Check `config/storage.yml` and the Gemfile before introducing a new tool. Image processing typically goes through MiniMagick or libvips.
 
 ## Code Quality
 
@@ -433,15 +363,18 @@ bundle exec rubocop -a           # Auto-correct issues
 
 ## Authorization
 
-Pundit policies in `app/policies/`:
+Use the authorization library the project already has. If it's Pundit, policies live in `app/policies/`:
+
 ```ruby
 # Check permissions
-authorize @company, :update?
+authorize @resource, :update?
 
 # Policy classes follow naming convention
-class CompanyPolicy < ApplicationPolicy
+class ResourcePolicy < ApplicationPolicy
 end
 ```
+
+If the project uses CanCanCan, ActionPolicy, or rolls its own, follow that gem's conventions instead. Either way: every controller action enforces an authorization check, and queries are scoped to the current user/account — no unscoped queries.
 
 ## Common Patterns
 
@@ -621,15 +554,12 @@ end
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure:
-- Database credentials
-- Meilisearch settings
-- Third-party API keys (Stripe, etc.)
+If the project uses dotenv or `.env.example`, copy it to `.env` and fill in the required values (database credentials, third-party API keys, etc.). Otherwise, configure secrets through whatever mechanism the project uses (Rails credentials, Vault, the deployment platform's env settings, etc.).
 
 ## Debugging
 
 ```bash
-rails console            # Rails console in container
+rails console            # interactive Rails console
 ```
 
 ## Naming Conventions

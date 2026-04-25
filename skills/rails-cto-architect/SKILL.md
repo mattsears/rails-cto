@@ -104,9 +104,9 @@ Before finalizing task decomposition, walk the proposed design against four lens
 No plan ships without explicitly deciding each of these four dimensions. They go into the plan's **Architecture Decisions** section:
 
 1. **Data model & migrations** — Schema changes, indexes, foreign keys, cascade behavior, soft-delete strategy (if any), state-records vs boolean columns. Prefer state records per `rails-cto-engineer` conventions.
-2. **Service/command boundaries** — Where does logic live? Thin controllers, rich models. Commands in `app/commands/` for orchestration. Services in `app/services/` for queries and integrations. Explicit namespacing (`Services::Companies::Create`, `Commands::Posts::Publish`).
-3. **Background jobs & async strategy** — What runs sync vs async? GoodJob queue. Retry and failure policy (`retry_on`, `discard_on`). Idempotency.
-4. **Authorization & access control** — Who can do what? Pundit policies in `app/policies/`. Query scoping via `current_account` / `current_user`. Admin vs user paths. No unscoped queries — ever.
+2. **Service/command boundaries** — Where does logic live? Thin controllers, rich models. Commands in `app/commands/` for orchestration. Services in `app/services/` for queries and integrations. Explicit namespacing (`Services::<Resource>::Create`, `Commands::<Resource>::Publish`).
+3. **Background jobs & async strategy** — What runs sync vs async? Use ActiveJob with the project's configured queue adapter. Retry and failure policy (`retry_on`, `discard_on`). Idempotency.
+4. **Authorization & access control** — Who can do what? Follow the project's authorization library (Pundit policies in `app/policies/`, or whatever is already in use). Query scoping via `current_account` / `current_user`. Admin vs user paths. No unscoped queries — ever.
 
 ## Phase 6: Standard Plan Phases
 
@@ -114,7 +114,7 @@ Every plan uses these phases, in order. If a phase is genuinely not needed, mark
 
 1. **Data layer** — migrations, indexes, foreign keys, model scaffolding, associations, scopes, validations
 2. **Service / command layer** — `app/commands/...`, `app/services/...`, job classes
-3. **Controllers & routes** — RESTful resources, authorization (Pundit policies)
+3. **Controllers & routes** — RESTful resources, authorization checks (using the project's authorization library)
 4. **Views & ViewComponents** — ERB partials, ViewComponents, Stimulus controllers, Turbo Frames/Streams
 5. **QA gate** — mandatory final task invoking `/rails-cto-qa`
 
@@ -206,7 +206,7 @@ Every plan file follows this exact structure. Sections appear in this order:
 [Sync vs async, retry/failure policy]
 
 ### Authorization & access control
-[Pundit policies, scoping]
+[Authorization checks and query scoping]
 
 ## Risks & Assumptions
 
