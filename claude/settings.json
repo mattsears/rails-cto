@@ -1,28 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "Bash(bundle exec rubocop:*)",
-      "Bash(bundle exec reek:*)",
-      "Bash(bundle exec flog:*)",
-      "Bash(bundle exec flay:*)",
-      "Bash(bundle-audit:*)",
-      "Bash(bundle exec herb:*)",
-      "Bash(rails test:*)",
-      "Bash(bundle exec rails test:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git branch:*)",
-      "Bash(git push:*)",
-      "Bash(gh pr create:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh pr status:*)"
-    ],
+    "allow": [],
     "deny": []
   }
 }

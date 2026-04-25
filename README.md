@@ -1,6 +1,10 @@
 # rails-cto
 
-Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator. It provides expert guidance across the full stack — controllers, models, JSON APIs, ERB, ViewComponents, Stimulus, Tailwind, and Minitest — and enforces a strict quality pipeline on every change, running RuboCop, Reek, Flog, Flay, Brakeman, bundler-audit, and SimpleCov before anything is considered done. It also plans multi-step features, guides Rails version upgrades, and automates the git workflow from clean commits through staging and production pull requests — so no QA step gets silently skipped.
+Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator. It guides every layer of the stack and enforces strict quality, security, and test gates so nothing ships without review.
+
+## Help wanted — early days
+
+rails-cto is in active early development. The vision is a fully integrated Rails workflow that makes Claude the best collaborator a Ruby on Rails developer can have — see [railscto.com](https://railscto.com) for the bigger picture. There's a lot of ground still to cover, and a helping hand goes a long way. If you write Rails and have opinions about what a senior-engineer-grade Claude should do, contributions, issues, and feedback are all welcome on [GitHub](https://github.com/mattsears/rails-cto/issues).
 
 ## Skills
 
@@ -19,14 +23,6 @@ rails-cto covers the full Rails development lifecycle:
 
 Start every session with `/rails-cto` — the orchestrator skill handles session init, routes to specialist skills, enforces QA gates, and runs the completion checklist. Browse `skills/` for the full list of individual skills.
 
-### Marketplace Dependencies
-
-These skills reference third-party skills from the Claude Code marketplace:
-
-| Skill                         | Marketplace                                   | Used By              |
-|-------------------------------|-----------------------------------------------|----------------------|
-| `better-stimulus@obie-skills` | [obie/skills](https://github.com/obie/skills) | `rails-cto-stimulus` |
-
 ## Installation
 
 ### Install from the marketplace
@@ -44,6 +40,12 @@ group :development, :test do
   gem "rails-cto"
 end
 ```
+Then bootstrap the project:
+
+```bash
+bundle install
+bundle exec rails-cto init
+```
 
 ### Install marketplace dependencies
 
@@ -53,22 +55,6 @@ The Stimulus skill depends on `better-stimulus@obie-skills`. Install it from the
 /plugin marketplace add obie/skills
 /plugin install better-stimulus@obie-skills
 ```
-
-Then bootstrap the project:
-
-```bash
-bundle install
-bundle exec rails-cto init
-```
-
-`rails-cto init` will:
-
-- Pull in the entire quality toolchain as gem dependencies (RuboCop + rubocop-rails + rubocop-minitest, Reek, Flog, Flay, Brakeman, bundler-audit, SimpleCov + simplecov_json_formatter, Herb).
-- Drop config templates into your project (skipping any that already exist): `.rubocop.yml`, `.reek.yml`, `.bundler-audit.yml`, `config/brakeman.yml`, `.herb/rewriters/align-attributes.mjs`, `.herb/rules/no-inline-styles.mjs`.
-- Patch `test/test_helper.rb` to boot SimpleCov with the JSON formatter (required by the QA and Minitest skills — they read `coverage/coverage.json`).
-- Append a short block to your project's `CLAUDE.md` that wires the plugin's mandatory skills (`/rails-cto`, `/rails-cto-qa`, `/rails-cto-erb`, `/rails-cto-tailwind`) into every session.
-
-Pass `--force` to overwrite existing files. Run `bundle exec rails-cto doctor` anytime to verify that every config is present and hasn't drifted from the bundled templates.
 
 ### Node-side Herb tools
 
@@ -80,6 +66,14 @@ Herb's Node-side formatter and linter aren't part of the gem. Add them to your `
 ```
 
 Then run `yarn install` (or `npm install`).
+
+### GitHub CLI
+
+The `rails-cto-pull-request` and `rails-cto-production-pr` skills use the [`gh` CLI](https://cli.github.com/) to open PRs. Install it (`brew install gh` on macOS, or see the install guide for other platforms) and authenticate once:
+
+```bash
+gh auth login
+```
 
 ## Updating
 
