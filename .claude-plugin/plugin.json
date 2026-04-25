@@ -1,12 +1,26 @@
 {
   "name": "rails-cto",
-  "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
-  "version": "0.3.5",
+  "description": "Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator — enforcing strict quality, security, and test gates on every change.",
+  "version": "0.3.6",
   "author": {
     "name": "Matt Sears",
     "email": "matt@mattsears.com"
   },
-  "homepage": "https://github.com/mattsears/rails-cto",
+  "homepage": "https://railscto.com",
   "repository": "https://github.com/mattsears/rails-cto",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "ruby-on-rails",
+    "rails",
+    "ruby",
+    "rubocop",
+    "minitest",
+    "code-quality",
+    "code-review",
+    "security",
+    "testing",
+    "developer-tools"
+  ]
 }
