@@ -23,6 +23,8 @@ rails-cto covers the full Rails development lifecycle:
 
 Start every session with `/rails-cto` — the orchestrator skill handles session init, routes to specialist skills, enforces QA gates, and runs the completion checklist. Browse `skills/` for the full list of individual skills.
 
+Skills run on whatever model your session is using, so pick a strong one (Fable or Opus) with `/model` for the best results. The one exception is the architect skill, which plans on the best model available to your account for that turn, then hands back to your session model.
+
 ## Installation
 
 ### Install from the marketplace

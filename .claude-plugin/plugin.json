@@ -1,7 +1,7 @@
 {
   "name": "rails-cto",
   "description": "Opinionated Claude Code plugin that turns Claude into a senior-engineer-grade Ruby on Rails collaborator — enforcing strict quality, security, and test gates on every change.",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "author": {
     "name": "Matt Sears",
     "email": "matt@mattsears.com"

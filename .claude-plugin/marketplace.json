@@ -8,14 +8,14 @@
   },
   "metadata": {
     "description": "Opinionated Ruby on Rails development toolkit — orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, upgrades, and git workflows.",
-    "version": "0.3.0",
+    "version": "0.3.7",
     "repository": "https://github.com/mattsears/rails-cto"
   },
   "plugins": [
     {
       "name": "rails-cto",
-      "description": "Opinionated Ruby on Rails development toolkit with 16 skills covering orchestration, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, API design, upgrades, security, static analysis, and git workflows.",
-      "version": "0.3.0",
+      "description": "Opinionated Ruby on Rails development toolkit with 17 skills covering orchestration, feature planning, controllers, ERB templates, Stimulus, Minitest, Tailwind, QA, ViewComponents, API design, upgrades, security, static analysis, and git workflows.",
+      "version": "0.3.7",
       "author": {
         "name": "Matt Sears",
         "email": "matt@mattsears.com"
@@ -27,6 +27,7 @@
       "skills": [
         "./skills/rails-cto",
         "./skills/rails-cto-engineer",
+        "./skills/rails-cto-architect",
         "./skills/rails-cto-api",
         "./skills/rails-cto-erb",
         "./skills/rails-cto-minitest",
