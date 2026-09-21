@@ -79,11 +79,16 @@ gh auth login
 
 ## Updating
 
-Refresh the marketplace manifest so Claude Code picks up the latest published version:
+Updating is two steps, run from your shell. Refresh the marketplace so Claude Code sees the latest published version, then update the installed plugin — refreshing the marketplace alone leaves your install on the old version:
 
 ```bash
-/plugin marketplace update rails-cto
+claude plugin marketplace update rails-cto
+claude plugin update rails-cto@rails-cto
 ```
+
+Restart Claude Code to load the new version, or run `/reload-plugins` in a session that's already open. Check what you're on with `claude plugin list`.
+
+To skip this in future, turn on auto-update for the marketplace: run `/plugin`, go to **Marketplaces**, select `rails-cto`, and choose **Enable auto-update**. It is off by default for third-party marketplaces.
 
 ## Uninstalling
 
